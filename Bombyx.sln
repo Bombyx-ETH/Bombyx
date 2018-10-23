@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bombyx.Plugin", "Bombyx.Plugin\Bombyx.Plugin.csproj", "{C4AD077D-1CE6-4972-B1CF-AE760CDB4061}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bombyx.Data", "Bombyx.Data\Bombyx.Data.csproj", "{77A4FF1C-0348-47FD-AFCF-1B5304E704DD}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4AD077D-1CE6-4972-B1CF-AE760CDB4061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4AD077D-1CE6-4972-B1CF-AE760CDB4061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4AD077D-1CE6-4972-B1CF-AE760CDB4061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4AD077D-1CE6-4972-B1CF-AE760CDB4061}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77A4FF1C-0348-47FD-AFCF-1B5304E704DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77A4FF1C-0348-47FD-AFCF-1B5304E704DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77A4FF1C-0348-47FD-AFCF-1B5304E704DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77A4FF1C-0348-47FD-AFCF-1B5304E704DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
