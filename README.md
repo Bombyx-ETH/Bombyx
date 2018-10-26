@@ -7,14 +7,15 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 
 
 ### Official download
-[food4Rhino](https://www.food4rhino.com/app/bombyx) (connects to Azure)
+[food4Rhino](https://www.food4rhino.com/app/bombyx)
 
 
 ### Requirements and dependencies
 1. [Rhino3d](https://www.rhino3d.com/)
 2. [Grasshopper](https://www.grasshopper3d.com/)
 3. [Ladybug / Honeybee](https://www.food4rhino.com/app/ladybug-tools)
-4. A database is needed for development - we use Azure for the moment - thus the SQL scripts are provided to create a datatable and to insert materials into it:   
+4. Internet connection
+5. A database is needed for development - we use Azure for the moment - thus the SQL scripts are provided to create a datatable and to insert materials into it:   
    [SQL scripts](../master/Bombyx.Data/SQLscripts)
    
    Example of Config.cs for Azure connection string:
