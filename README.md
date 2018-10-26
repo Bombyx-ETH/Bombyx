@@ -24,7 +24,7 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
    public static class Config
     {
         public static string connectAzure = "Server=[your_server];" +
-            "Initial Catalog=BombyxDB;Persist Security Info=False;User ID=[your_username];" +
+            "Initial Catalog=[your_database];Persist Security Info=False;User ID=[your_username];" +
             "Password=[your_password];MultipleActiveResultSets=False;Encrypt=True;" +
             "TrustServerCertificate=False;Connection Timeout=30;";
     }
