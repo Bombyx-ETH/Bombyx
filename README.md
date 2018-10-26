@@ -1,6 +1,8 @@
+
 # Real-time Life Cycle Assessment – Bombyx project
 
 ### About
+<img align="left" width="100" height="100" src="https://i.imgur.com/aJduNdT.png">
 The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and includes an SQL material and component database. Users are able to choose different materials and building systems and quickly modify the building’s geometry while continuously receiving the calculated environmental impact in real-time. Visualization of the results, e.g. colour code indicating how the design performs in relation to a benchmark or optimization potential. 
 
 
