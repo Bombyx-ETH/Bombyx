@@ -45,8 +45,9 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 - Component impact
 - Element impact
 - Window / Door impact
+- Operational impact
 
 
 ### Future goals
-+ Visualization (change geometry color in Rhino depending on calculated LCA value)
++ Visualization
 + Own item selector implementation
