@@ -3,7 +3,7 @@
     public class KBOBMaterialModel
     {
         public string IdKBOB { get; set; }
-        public string Density { get; set; }
+        public float Density { get; set; }
         public float UBPfab { get; set; }
         public float UBPeol { get; set; }
         public float PEnrfab { get; set; }

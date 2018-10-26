@@ -28,7 +28,7 @@ namespace Bombyx.Plugin.KBOB
             pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
             pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item);
             pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item);
-            pManager.AddTextParameter("Density", "Density (kg/m\xB3)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Density", "Density (kg/m\xB3)", "Value", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)

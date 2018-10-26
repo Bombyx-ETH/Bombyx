@@ -43,7 +43,7 @@ namespace Bombyx.Data.KBOB
             foreach (DataRow item in query)
             {
                 result.IdKBOB = item[4].ToString().Trim();
-                result.Density = item[7].ToString();
+                result.Density = Convert.ToSingle(item[7]);
                 result.UBPfab = Convert.ToSingle(item[9]);
                 result.UBPeol = Convert.ToSingle(item[11]);
                 result.PEnrfab = Convert.ToSingle(item[15]);

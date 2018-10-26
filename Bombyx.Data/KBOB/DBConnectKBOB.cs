@@ -8,9 +8,10 @@ namespace Bombyx.Data.KBOB
     {
         private readonly SqlConnection connection;
         
+
         public DBConnectKBOB()
         {
-            connection = new SqlConnection(Config.connectAzure);
+            connection = new SqlConnection(Config.connectAzure);           
         }
 
         private void CheckConnectionStatus()
@@ -34,15 +35,15 @@ namespace Bombyx.Data.KBOB
                 connection.Open();
                 var da = new SqlDataAdapter(cmd);
                 da.Fill(results);
+                
                 connection.Close();
             }
             catch (Exception ex)
             {
-                //System.Windows.Forms.MessageBox.Show(exp.Message.ToString(), "Exception in xxx component");
             }
             finally
             {
-                CheckConnectionStatus();
+                CheckConnectionStatus();               
             }
 
             return results;
