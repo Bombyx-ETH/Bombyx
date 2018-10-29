@@ -20,10 +20,13 @@ namespace Bombyx.Plugin.Impacts
             pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Number value", GH_ParamAccess.item);
             pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Number value", GH_ParamAccess.item);
             pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Number value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Number value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Number value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Number value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Number value", GH_ParamAccess.item, 0d);
             pManager.AddNumberParameter("Density", "Density (kg/m\xB3)", "Number value", GH_ParamAccess.item);
             pManager.AddNumberParameter("Thickness", "Thickness", "Number value", GH_ParamAccess.item);
+
+            pManager[4].Optional = true;
+            pManager[5].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
