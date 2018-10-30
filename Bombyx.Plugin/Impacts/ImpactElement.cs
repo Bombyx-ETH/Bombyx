@@ -16,17 +16,23 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
             pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item, 0d);            
             pManager.AddNumberParameter("UBP(Rep)", "UBP(Rep)", "Value", GH_ParamAccess.item, 0d);
             pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddIntegerParameter("Area", "Area", "Manual value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Area (square meters)", "Area (m\xB2)", "Manual value", GH_ParamAccess.item);
 
+            pManager[0].Optional = true;
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
+            pManager[3].Optional = true;
+            pManager[4].Optional = true;
+            pManager[5].Optional = true;
             pManager[6].Optional = true;
             pManager[7].Optional = true;
             pManager[8].Optional = true;
@@ -56,7 +62,7 @@ namespace Bombyx.Plugin.Impacts
             var UBPEmb = Params.Input[6].VolatileData.AllData(true);
             var UBPRep = Params.Input[7].VolatileData.AllData(true);
             var UBPEoL = Params.Input[8].VolatileData.AllData(true);
-            var area = 0;
+            var area = 0d;
             if (!DA.GetData("Area", ref area)) { return; }
 
             var sumPEemb = 0d;

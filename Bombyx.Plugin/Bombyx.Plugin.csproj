@@ -104,13 +104,13 @@
     <None Include="Resources\KBOBMaterial.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\impactLayer.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\impactComponent.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\impactElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\impactLayer.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\impactWindowDoor.png" />

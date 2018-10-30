@@ -16,17 +16,22 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Manual input", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
+            
+            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
             pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item, 0d);
             pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Manual input", GH_ParamAccess.item);
 
-            pManager[6].Optional = true;
-            pManager[7].Optional = true;
+            pManager[0].Optional = true;
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
+            pManager[3].Optional = true;
+            pManager[4].Optional = true;
+            pManager[5].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
@@ -45,12 +50,12 @@ namespace Bombyx.Plugin.Impacts
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // get inputs
-            var PEnrEmb = Params.Input[2].VolatileData.AllData(true);
-            var PEnrEoL = Params.Input[3].VolatileData.AllData(true);
-            var GWPEmb = Params.Input[4].VolatileData.AllData(true);
-            var GWPEoL = Params.Input[5].VolatileData.AllData(true);
-            var UBPEmb = Params.Input[6].VolatileData.AllData(true);
-            var UBPEoL = Params.Input[7].VolatileData.AllData(true);
+            var PEnrEmb = Params.Input[0].VolatileData.AllData(true);
+            var PEnrEoL = Params.Input[1].VolatileData.AllData(true);
+            var GWPEmb = Params.Input[2].VolatileData.AllData(true);
+            var GWPEoL = Params.Input[3].VolatileData.AllData(true);
+            var UBPEmb = Params.Input[4].VolatileData.AllData(true);
+            var UBPEoL = Params.Input[5].VolatileData.AllData(true);
             var RSP = 0;
             if (!DA.GetData("Reference study period", ref RSP)) { return; }
             var RSL = 0;
@@ -60,6 +65,14 @@ namespace Bombyx.Plugin.Impacts
             if (RSL != 0 && RSP != 0)
             {
                 repNum = (RSP / RSL) - 1;
+            }
+            if (repNum < 0)
+            {
+                repNum = 0;
+            }
+            if (repNum > 0 && repNum < 1)
+            {
+                repNum = 1;
             }
 
             var sumPEemb = 0d;
