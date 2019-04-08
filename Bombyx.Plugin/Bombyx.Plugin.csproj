@@ -65,18 +65,29 @@
   <ItemGroup>
     <Compile Include="Bombyx.PluginInfo.cs" />
     <Compile Include="BombyxIcon.cs" />
+    <Compile Include="CompLevel\CompGroups.cs" />
+    <Compile Include="CompLevel\ComponentDefault.cs" />
+    <Compile Include="CompLevel\Components.cs" />
+    <Compile Include="CompLevel\ComponentWindow.cs" />
+    <Compile Include="CompLevel\GeneratedComponent.cs" />
     <Compile Include="Icons.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Icons.resx</DependentUpon>
     </Compile>
+    <Compile Include="Impacts\ImpactBuilding.cs" />
     <Compile Include="Impacts\ImpactComponent.cs" />
     <Compile Include="Impacts\ImpactElement.cs" />
     <Compile Include="Impacts\ImpactLayer.cs" />
     <Compile Include="Impacts\ImpactWindowDoor.cs" />
+    <Compile Include="KBOB\KBOBEnergy.cs" />
+    <Compile Include="KBOB\KBOBEnergyList.cs" />
     <Compile Include="KBOB\KBOBGroups.cs" />
     <Compile Include="KBOB\KBOBMaterial.cs" />
     <Compile Include="KBOB\KBOBMaterialsList.cs" />
+    <Compile Include="KBOB\KBOBServices.cs" />
+    <Compile Include="KBOB\KBOBServicesGroups.cs" />
+    <Compile Include="KBOB\KBOBServicesList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,28 +103,66 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\KBOBGroups.png" />
+    <None Include="ItemSelector.gha">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bombyxLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\KBOBMaterialsList.png" />
+    <None Include="Resources\3component.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\KBOBMaterial.png" />
+    <None Include="Resources\3KBOB.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\impactComponent.png" />
+    <None Include="Resources\4building.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\impactElement.png" />
+    <None Include="Resources\1KBOB.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\impactLayer.png" />
+    <None Include="Resources\1layer.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\impactWindowDoor.png" />
+    <None Include="Resources\1window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2comp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2KBOB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3services.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1energy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1services.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2energy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2services.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3elem.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1component.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2component.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3Dwindow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3Dcomponent.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

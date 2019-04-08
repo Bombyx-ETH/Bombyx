@@ -1,5 +1,6 @@
 ﻿using System;
 using Grasshopper.Kernel;
+using System.Collections.Generic;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -16,153 +17,142 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item, 0d);            
-            pManager.AddNumberParameter("UBP(Rep)", "UBP(Rep)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("Component Properties", "Component\nProperties", "List of component properties", GH_ParamAccess.list);
             pManager.AddNumberParameter("Area (square meters)", "Area (m\xB2)", "Manual value", GH_ParamAccess.item);
-
-            pManager[0].Optional = true;
-            pManager[1].Optional = true;
-            pManager[2].Optional = true;
-            pManager[3].Optional = true;
-            pManager[4].Optional = true;
-            pManager[5].Optional = true;
-            pManager[6].Optional = true;
-            pManager[7].Optional = true;
-            pManager[8].Optional = true;
+            pManager.AddTextParameter("Functionality", "Functionality", "Functionalities:\n'ext wall'\n'int wall'\n'window'\n'floor'\n'roof'", GH_ParamAccess.item);
+            pManager[0].DataMapping = GH_DataMapping.Flatten;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Rep)", "UBP(Rep)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Element Properties", "LCA Factors\nElement", "LCA factors order: " +
+                "\n00:UBP13 Embodied " +
+                "\n01:UBP13 Rep " +
+                "\n02:UBP13 EoL " +
+                "\n03:PE Total Embodied " +
+                "\n04:PE Total Rep " +
+                "\n05:PE Total EoL " +
+                "\n06:PE Renewable Embodied " +
+                "\n07:PE Renewable Rep " +
+                "\n08:PE Renewable EoL " +
+                "\n09:PE Non-Renewable Embodied " +
+                "\n10:PE Non-Renewable Rep " +
+                "\n11:PE Non-Renewable EoL " +
+                "\n12:GHG Embodied " +
+                "\n13:GHG Rep " +
+                "\n14:GHG EoL", GH_ParamAccess.list);
+            pManager.AddNumberParameter("U value", "U value\n(W/m2*K)", "U Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("UA value", "UA value\n(W/K)", "Area U Value", GH_ParamAccess.item);
+        }
+
+        public static IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize)
+        {
+            for (int i = 0; i < locations.Count; i += nSize)
+            {
+                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
+            }
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var PEnrEmb = Params.Input[0].VolatileData.AllData(true);
-            var PEnrRep = Params.Input[1].VolatileData.AllData(true);
-            var PEnrEoL = Params.Input[2].VolatileData.AllData(true);
-            var GWPEmb = Params.Input[3].VolatileData.AllData(true);
-            var GWPRep = Params.Input[4].VolatileData.AllData(true);
-            var GWPEoL = Params.Input[5].VolatileData.AllData(true);
-            var UBPEmb = Params.Input[6].VolatileData.AllData(true);
-            var UBPRep = Params.Input[7].VolatileData.AllData(true);
-            var UBPEoL = Params.Input[8].VolatileData.AllData(true);
+            var component = new List<double>();
+            if (!DA.GetDataList(0, component)) { return; }
             var area = 0d;
-            if (!DA.GetData("Area", ref area)) { return; }
+            if (!DA.GetData(1, ref area)) { return; }
+            var funct = "";
+            if (!DA.GetData(2, ref funct)) { return; }
 
-            var sumPEemb = 0d;
-            var sumPErep = 0d;
-            var sumPEeol = 0d;
-            var sumGWPemb = 0d;
-            var sumGWPrep = 0d;
-            var sumGWPeol = 0d;
-            var sumUBPemb = 0d;
-            var sumUBPrep = 0d;
-            var sumUBPeol = 0d;
+            var inputs = SplitList(component, 17);
+            var result = new List<double>();
 
-            foreach (var item in PEnrEmb)
+            var UBP13EmbodiedSum = 0d;
+            var UBP13RepSum = 0d;
+            var UBP13EoLSum = 0d;
+            var TotalEmbodiedSum = 0d;
+            var TotalRepSum = 0d;
+            var TotalEoLSum = 0d;
+            var RenewableEmbodiedSum = 0d;
+            var RenewableRepSum = 0d;
+            var RenewableEoLSum = 0d;
+            var NonRenewableEmbodiedSum = 0d;
+            var NonRenewableRepSum = 0d;
+            var NonRenewableEoLSum = 0d;
+            var GHGEmbodiedSum = 0d;
+            var GHGRepSum = 0d;
+            var GHGEoLEoLSum = 0d;
+            var UvalueSum = 0d;
+
+            foreach (var item in inputs)
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumPEemb += tmp;
+                UBP13EmbodiedSum = UBP13EmbodiedSum + item[1];
+                UBP13RepSum = UBP13RepSum + item[2];
+                UBP13EoLSum = UBP13EoLSum + item[3];
+                TotalEmbodiedSum = TotalEmbodiedSum + item[4];
+                TotalRepSum = TotalRepSum + item[5];
+                TotalEoLSum = TotalEoLSum + item[6];
+                RenewableEmbodiedSum = RenewableEmbodiedSum +item[7];
+                RenewableRepSum = RenewableRepSum + item[8];
+                RenewableEoLSum = RenewableEoLSum + item[9];
+                NonRenewableEmbodiedSum = NonRenewableEmbodiedSum + item[10];
+                NonRenewableRepSum = NonRenewableRepSum + item[11];
+                NonRenewableEoLSum = NonRenewableEoLSum + item[12];
+                GHGEmbodiedSum = GHGEmbodiedSum + item[13];
+                GHGRepSum = GHGRepSum + item[14];
+                GHGEoLEoLSum = GHGEoLEoLSum + item[15];
+                UvalueSum = UvalueSum + item[16];
             }
 
-            foreach (var item in PEnrRep)
+            result.Add(UBP13EmbodiedSum * area);
+            result.Add(UBP13RepSum * area);
+            result.Add(UBP13EoLSum * area);
+            result.Add(TotalEmbodiedSum * area);
+            result.Add(TotalRepSum * area);
+            result.Add(TotalEoLSum * area);
+            result.Add(RenewableEmbodiedSum * area);
+            result.Add(RenewableRepSum * area);
+            result.Add(RenewableEoLSum * area);
+            result.Add(NonRenewableEmbodiedSum * area);
+            result.Add(NonRenewableRepSum * area);
+            result.Add(NonRenewableEoLSum * area);
+            result.Add(GHGEmbodiedSum * area);
+            result.Add(GHGRepSum * area);
+            result.Add(GHGEoLEoLSum * area);
+
+            DA.SetDataList(0, result);
+            if(funct.Equals("window"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumPErep += tmp;
+                DA.SetData(1, UvalueSum);
+                DA.SetData(2, UvalueSum * area);
             }
-
-            foreach (var item in PEnrEoL)
+            else if (funct.Equals("int wall"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumPEeol += tmp;
+                DA.SetData(1, 1 / (UvalueSum + 0.17));
+                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
             }
-
-            foreach (var item in GWPEmb)
+            else if(funct.Equals("ext wall"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumGWPemb += tmp;
+                DA.SetData(1, 1 / (UvalueSum + 0.17));
+                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
             }
-
-            foreach (var item in GWPRep)
+            else if (funct.Equals("roof"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumGWPrep += tmp;
+                DA.SetData(1, 1 / (UvalueSum + 0.17));
+                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
             }
-
-            foreach (var item in GWPEoL)
+            else if (funct.Equals("ceiling"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumGWPeol += tmp;
+                DA.SetData(1, 1 / (UvalueSum + 0.17));
+                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
             }
-
-            foreach (var item in UBPEmb)
+            else if (funct.Equals("floor"))
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumUBPemb += tmp;
+                DA.SetData(1, 1 / (UvalueSum + 0.13));
+                DA.SetData(2, (1 / (UvalueSum + 0.13)) * area);
             }
-
-            foreach (var item in UBPRep)
+            else
             {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumUBPrep += tmp;
-            }
-
-            foreach (var item in UBPEoL)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumUBPeol += tmp;
-            }
-
-            // set outputs
-            DA.SetData("PEnr(Emb)", sumPEemb * area);
-            DA.SetData("PEnr(Rep)", sumPErep * area);
-            DA.SetData("PEnr(EoL)", sumPEeol * area);
-            DA.SetData("GWP(Emb)", sumGWPemb * area);
-            DA.SetData("GWP(Rep)", sumGWPrep * area);
-            DA.SetData("GWP(EoL)", sumGWPeol * area);
-            DA.SetData("UBP(Emb)", sumUBPemb * area);
-            DA.SetData("UBP(Rep)", sumUBPrep * area);
-            DA.SetData("UBP(EoL)", sumUBPeol * area);
-
-            for (int x = 0; x < Params.Output.Count; x++)
-            {
-                for (int i = 0; i < Params.Output[x].VolatileDataCount - 1; i++)
-                {
-                    Params.Output[x].VolatileData.get_Branch(0).RemoveAt(i);
-                }
-            }
-
-            for (int j = 0; j < Params.Output.Count; j++)
-            {
-                if (Params.Output[j].VolatileData.get_Branch(0)[0] == null)
-                {
-                    Params.Output[j].VolatileData.get_Branch(0).RemoveAt(0);
-                }
+                DA.SetData(1, UvalueSum);
+                DA.SetData(2, UvalueSum * area);
             }
         }
 
@@ -170,7 +160,7 @@ namespace Bombyx.Plugin.Impacts
         {
             get
             {
-                return Icons.impactElement;
+                return Icons._3elem;
             }
         }
 

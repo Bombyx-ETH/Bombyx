@@ -1,5 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -16,122 +18,97 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "Frame PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("PEnr(EoL)", "Frame PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(Emb)", "Frame GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(EoL)", "Frame GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(Emb)", "Frame UBP(Emb)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(EoL)", "Frame UBP(EoL)", "Value", GH_ParamAccess.item, 0d);         
-            pManager.AddNumberParameter("PEnr(Emb)", "Filling PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("PEnr(EoL)", "Filling PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(Emb)", "Filling GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(EoL)", "Filling GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(Emb)", "Filling UBP(Emb)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(EoL)", "Filling UBP(EoL)", "Value", GH_ParamAccess.item, 0d);
+            pManager.AddNumberParameter("Frame Properties", "Frame\nProperties", "List of frame properties", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Filling Properties", "Filling\nProperties", "List of filling properties", GH_ParamAccess.list);
             pManager.AddNumberParameter("Frame percentage", "Frame percentage", "Value", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Manual input", GH_ParamAccess.item);
-
-            pManager[0].Optional = true;
-            pManager[1].Optional = true;
-            pManager[2].Optional = true;
-            pManager[3].Optional = true;
-            pManager[4].Optional = true;
-            pManager[5].Optional = true;
-            pManager[6].Optional = true;
-            pManager[7].Optional = true;
-            pManager[8].Optional = true;
-            pManager[9].Optional = true;
-            pManager[10].Optional = true;
-            pManager[11].Optional = true;
+            pManager.AddNumberParameter("U value", "U value\n(W/m2*K)", "U value", GH_ParamAccess.item);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Rep)", "UBP(Rep)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Window/Door Properties", "Window/Door\nProperties", "Window properties order: " +
+                "\n00: unused " +
+                "\n01: UBP13 Embodied " +
+                "\n02: UBP13 Rep " +
+                "\n03: UBP13 EoL " +
+                "\n04: PE Total Embodied " +
+                "\n05: PE Total Rep " +
+                "\n06: PE Total EoL " +
+                "\n07: PE Renewable Embodied " +
+                "\n08: PE Renewable Rep " +
+                "\n09: PE Renewable Rep " +
+                "\n10: PE Non-Renewable Embodied " +
+                "\n11: PE Non-Renewable Rep " +
+                "\n12: PE Non-Renewable EoL " +
+                "\n13: GHG Embodied " +
+                "\n14: GHG Rep " +
+                "\n15: GHG EoL " +
+                "\n16: U-value", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var PEnrEmbFrame = 0d;
-            if (!DA.GetData(0, ref PEnrEmbFrame)) { return; }
-            var PEnrEoLFrame = 0d;
-            if (!DA.GetData(1, ref PEnrEoLFrame)) { return; }
-            var GWPEmbFrame = 0d;
-            if (!DA.GetData(2, ref GWPEmbFrame)) { return; }
-            var GWPEoLFrame = 0d;
-            if (!DA.GetData(3, ref GWPEoLFrame)) { return; }
-            var UBPEmbFrame = 0d;
-            if (!DA.GetData(4, ref UBPEmbFrame)) { return; }
-            var UBPEoLFrame = 0d;
-            if (!DA.GetData(5, ref UBPEoLFrame)) { return; }          
-            var PEnrEmbFilling = 0d;
-            if (!DA.GetData(6, ref PEnrEmbFilling)) { return; }
-            var PEnrEoLFilling = 0d;
-            if (!DA.GetData(7, ref PEnrEoLFilling)) { return; }
-            var GWPEmbFilling = 0d;
-            if (!DA.GetData(8, ref GWPEmbFilling)) { return; }
-            var GWPEoLFilling = 0d;
-            if (!DA.GetData(9, ref GWPEoLFilling)) { return; }
-            var UBPEmbFilling = 0d;
-            if (!DA.GetData(10, ref UBPEmbFilling)) { return; }
-            var UBPEoLFilling = 0d;
-            if (!DA.GetData(11, ref UBPEoLFilling)) { return; }
+            var frame = new List<double>();
+            if (!DA.GetDataList(0, frame)) { return; }
+            var filling = new List<double>();
+            if (!DA.GetDataList(1, filling)) { return; }
             var frameInput = 0d;
-            if (!DA.GetData("Frame percentage", ref frameInput)) { return; }
+            if (!DA.GetData(2, ref frameInput)) { return; }
             var framePercent = frameInput / 100;
             var fillingPercent = 1 - framePercent;
             var RSP = 0;
-            if (!DA.GetData("Reference study period", ref RSP)) { return; }
+            if (!DA.GetData(3, ref RSP)) { return; }
             var RSL = 0;
-            if (!DA.GetData("Reference service life", ref RSL)) { return; }
+            if (!DA.GetData(4, ref RSL)) { return; }
+            var uValue = 0d;
+            if (!DA.GetData(5, ref uValue)) { return; }
 
-            int repNum = 0;
+            var result = new List<double>();
+            double repNum = 0;
+            double tmp = ((double)RSP / (double)RSL) - 1;
             if (RSL != 0 && RSP != 0)
             {
-                repNum = (RSP / RSL) - 1;
+                repNum = Math.Ceiling(tmp);
             }
-            if(repNum < 0)
+            if (repNum < 0)
             {
                 repNum = 0;
             }
-            if (repNum > 0 && repNum < 1)
+            if (repNum == 0)
             {
-                repNum = 1;
+                repNum = 0;
             }
 
-            var sumPEemb = (PEnrEmbFrame * framePercent) + (PEnrEmbFilling * fillingPercent);
-            var sumPEeol = (PEnrEoLFrame * framePercent) + (PEnrEoLFilling * fillingPercent);
-            var sumGWPemb = (GWPEmbFrame * framePercent) + (GWPEmbFilling * fillingPercent);
-            var sumGWPeol = (GWPEoLFrame * framePercent) + (GWPEoLFilling * fillingPercent);
-            var sumUBPemb = (UBPEmbFrame * framePercent) + (UBPEmbFilling * fillingPercent);
-            var sumUBPeol = (UBPEoLFrame * framePercent) + (UBPEoLFilling * fillingPercent);
+            var window = frame.Zip(filling, (a, b) => ((a * framePercent) + (b * fillingPercent))).ToList();
 
-            // set outputs
-            DA.SetData("PEnr(Emb)", sumPEemb);
-            DA.SetData("PEnr(Rep)", (sumPEemb + sumPEeol) * repNum);
-            DA.SetData("PEnr(EoL)", sumPEeol);
-            DA.SetData("GWP(Emb)", sumGWPemb);
-            DA.SetData("GWP(Rep)", (sumGWPemb + sumGWPeol) * repNum);
-            DA.SetData("GWP(EoL)", sumGWPeol);
-            DA.SetData("UBP(Emb)", sumUBPemb);
-            DA.SetData("UBP(Rep)", (sumUBPemb + sumUBPeol) * repNum);
-            DA.SetData("UBP(EoL)", sumUBPeol);
+            result.Add(1);
+            result.Add(window[1]); //UBP13Embodied 1
+            result.Add((window[1] + window[2]) * repNum); //UBP13Rep 2
+            result.Add(window[2]); //UBP13EoL 3
+            result.Add(window[3]); //TotalEmbodied 4
+            result.Add((window[3] + window[4]) * repNum); //TotalRep 5
+            result.Add(window[4]); //TotalEoL 6
+            result.Add(window[5]); //RenewableEmbodied 7
+            result.Add((window[5] + window[6]) * repNum); //RenewableRep 8
+            result.Add(window[6]); //RenewableRep 9
+            result.Add(window[7]); //NonRenewableEmbodied 10
+            result.Add((window[7] + window[8]) * repNum); //NonRenewableRep 11
+            result.Add(window[8]); //NonRenewableEoL 12
+            result.Add(window[9]); //GHGEmbodied 13
+            result.Add((window[9] + window[10]) * repNum); //GHGRep 14
+            result.Add(window[10]); //GHGEoL 15
+            result.Add(uValue);
+
+            DA.SetDataList(0, result);
         }
 
         protected override System.Drawing.Bitmap Icon
         {
             get
             {
-                return Icons.impactWindowDoor;
+                return Icons._1window;
             }
         }
 

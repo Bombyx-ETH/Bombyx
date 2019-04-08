@@ -48,16 +48,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompLevel\CompData.cs" />
+    <Compile Include="Models\ComponentModel.cs" />
+    <Compile Include="CompLevel\DBConnectComp.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="KBOB\DBConnectKBOB.cs" />
     <Compile Include="KBOB\KBOBdata.cs" />
     <Compile Include="KBOB\KBOBMaterialModel.cs" />
+    <Compile Include="Models\MaterialModel.cs" />
+    <Compile Include="Models\WindowModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="SQLscripts\KbobMaterialsInsertsAzure.sql" />
     <Content Include="SQLscripts\KbobMaterialTableAzure.sql" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

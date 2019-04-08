@@ -1,5 +1,6 @@
 ﻿using System;
 using Grasshopper.Kernel;
+using System.Collections.Generic;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -16,147 +17,84 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item, 0d);
-            pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Manual input", GH_ParamAccess.item);
-
-            pManager[0].Optional = true;
-            pManager[1].Optional = true;
-            pManager[2].Optional = true;
-            pManager[3].Optional = true;
-            pManager[4].Optional = true;
-            pManager[5].Optional = true;
+            pManager.AddNumberParameter("Layer properties", "Layer\nproperties", "List of layer properties", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Reference study period", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Reference service life", GH_ParamAccess.item);            
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(Rep)", "PEnr(Rep kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Rep)", "GWP(Rep kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Rep)", "UBP(Rep)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Component Properties", "Component\nproperties", "Component properties order: " +
+                "\n00: unused " +
+                "\n01: UBP13 Embodied " +
+                "\n02: UBP13 Rep " +
+                "\n03: UBP13 EoL " +
+                "\n04: PE Total Embodied " +
+                "\n05: PE Total Rep " +
+                "\n06: PE Total EoL " +
+                "\n07: PE Renewable Embodied " +
+                "\n08: PE Renewable Rep " +
+                "\n09: PE Renewable Rep " +
+                "\n10: PE Non-Renewable Embodied " +
+                "\n11: PE Non-Renewable Rep " +
+                "\n12: PE Non-Renewable EoL " +
+                "\n13: GHG Embodied " +
+                "\n14: GHG Rep " +
+                "\n15: GHG EoL " +
+                "\n16: R-value", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // get inputs
-            var PEnrEmb = Params.Input[0].VolatileData.AllData(true);
-            var PEnrEoL = Params.Input[1].VolatileData.AllData(true);
-            var GWPEmb = Params.Input[2].VolatileData.AllData(true);
-            var GWPEoL = Params.Input[3].VolatileData.AllData(true);
-            var UBPEmb = Params.Input[4].VolatileData.AllData(true);
-            var UBPEoL = Params.Input[5].VolatileData.AllData(true);
+            var layer = new List<double>();
+            if (!DA.GetDataList(0, layer)) { return; }
             var RSP = 0;
-            if (!DA.GetData("Reference study period", ref RSP)) { return; }
+            if (!DA.GetData(1, ref RSP)) { return; }
             var RSL = 0;
-            if (!DA.GetData("Reference service life", ref RSL)) { return; }
+            if (!DA.GetData(2, ref RSL)) { return; }          
 
-            int repNum = 0;
+            var result = new List<double>();
+            double repNum = 0;
+            double tmp = ((double)RSP / (double)RSL) - 1;
             if (RSL != 0 && RSP != 0)
             {
-                repNum = (RSP / RSL) - 1;
+                repNum = Math.Ceiling(tmp);
             }
             if (repNum < 0)
             {
                 repNum = 0;
             }
-            if (repNum > 0 && repNum < 1)
+            if (repNum == 0)
             {
-                repNum = 1;
+                repNum = 0;
             }
+            
+            result.Add(layer[0]);
+            result.Add(layer[1]); //UBP13Embodied 1
+            result.Add((layer[1] + layer[2]) * repNum); //UBP13Rep 2
+            result.Add(layer[2]); //UBP13EoL 3
+            result.Add(layer[3]); //TotalEmbodied 4
+            result.Add((layer[3] + layer[4]) * repNum); //TotalRep 5
+            result.Add(layer[4]); //TotalEoL 6
+            result.Add(layer[5]); //RenewableEmbodied 7
+            result.Add((layer[5] + layer[6]) * repNum); //RenewableRep 8
+            result.Add(layer[6]); //RenewableRep 9
+            result.Add(layer[7]); //NonRenewableEmbodied 10
+            result.Add((layer[7] + layer[8]) * repNum); //NonRenewableRep 11
+            result.Add(layer[8]); //NonRenewableEoL 12
+            result.Add(layer[9]); //GHGEmbodied 13
+            result.Add((layer[9] + layer[10]) * repNum); //GHGRep 14
+            result.Add(layer[10]); //GHGEoL 15
+            result.Add(layer[11]); //R-value
 
-            var sumPEemb = 0d;
-            var sumPEeol = 0d;
-            var sumGWPemb = 0d;
-            var sumGWPeol = 0d;
-            var sumUBPemb = 0d;
-            var sumUBPeol = 0d;
-
-            foreach (var item in PEnrEmb)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumPEemb += tmp;
-            }
-
-            foreach (var item in PEnrEoL)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumPEeol += tmp;
-            }
-
-            foreach (var item in GWPEmb)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumGWPemb += tmp;
-            }
-
-            foreach (var item in GWPEoL)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumGWPeol += tmp;
-            }
-
-            foreach (var item in UBPEmb)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumUBPemb += tmp;
-            }
-
-            foreach (var item in UBPEoL)
-            {
-                var tmp = 0d;
-                item.CastTo(out tmp);
-                sumUBPeol += tmp;
-            }
-
-            // set outputs
-            DA.SetData("PEnr(Emb)", sumPEemb);
-            DA.SetData("PEnr(Rep)", (sumPEemb + sumPEeol) * repNum);
-            DA.SetData("PEnr(EoL)", sumPEeol);
-            DA.SetData("GWP(Emb)", sumGWPemb);
-            DA.SetData("GWP(Rep)", (sumGWPemb + sumGWPeol) * repNum);
-            DA.SetData("GWP(EoL)", sumGWPeol);
-            DA.SetData("UBP(Emb)", sumUBPemb);
-            DA.SetData("UBP(Rep)", (sumUBPemb + sumUBPeol) * repNum);
-            DA.SetData("UBP(EoL)", sumUBPeol);
-
-            for (int x = 0; x < Params.Output.Count; x++)
-            {
-                for (int i = 0; i < Params.Output[x].VolatileDataCount - 1; i++)
-                {
-                    Params.Output[x].VolatileData.get_Branch(0).RemoveAt(i);
-                }
-            }
-
-            for (int j = 0; j < Params.Output.Count; j++)
-            {
-                if (Params.Output[j].VolatileData.get_Branch(0)[0] == null)
-                {
-                    Params.Output[j].VolatileData.get_Branch(0).RemoveAt(0);
-                }
-            }
+            DA.SetDataList(0, result);
         }
 
         protected override System.Drawing.Bitmap Icon
         {
             get
             {
-                return Icons.impactComponent;
+                return Icons._2comp;
             }
         }
 

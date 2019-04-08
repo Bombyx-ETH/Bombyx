@@ -6,8 +6,7 @@ namespace Bombyx.Data.KBOB
 {
     public class DBConnectKBOB
     {
-        private readonly SqlConnection connection;
-        
+        private readonly SqlConnection connection;        
 
         public DBConnectKBOB()
         {
@@ -22,9 +21,23 @@ namespace Bombyx.Data.KBOB
             }
         }
 
-        public DataTable SelectKBOBdata()
+        public DataTable SelectKBOBdata(string table)
         {
-            var query = "SELECT * FROM KbobMaterial";
+            var query = "";
+
+            switch (table)
+            {
+                case "material":
+                    query = "SELECT * FROM KbobMaterial";
+                    break;
+                case "energy":
+                    query = "SELECT * FROM KbobEnergy WHERE IdKbob IN('43.001','43.002','43.006','43.007','43.008','43.009','44.001','44.002','44.003')";
+                    break;
+                case "services":
+                    query = "SELECT * FROM KbobServices";
+                    break;
+            }
+            
             var results = new DataTable();
 
             CheckConnectionStatus();
@@ -38,7 +51,7 @@ namespace Bombyx.Data.KBOB
                 
                 connection.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             finally
@@ -47,6 +60,6 @@ namespace Bombyx.Data.KBOB
             }
 
             return results;
-        }
+        }      
     }
 }

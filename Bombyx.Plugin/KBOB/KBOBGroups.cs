@@ -7,11 +7,11 @@ namespace Bombyx.Plugin.KBOB
     public class KBOBGroups : GH_Component
     {
         public KBOBGroups()
-          : base("KBOB Groups",
-                 "KBOB Groups",
-                 "Returns material groups",
+          : base("KBOB Material groups",
+                 "KBOB Mat. grps",
+                 "Returns KBOB material groups from the database.",
                  "Bombyx",
-                 "KBOB Data")
+                 "Materials")
         {
         }
 
@@ -21,7 +21,7 @@ namespace Bombyx.Plugin.KBOB
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Material Groups", "Material Groups", "List", GH_ParamAccess.list);
+            pManager.AddTextParameter("KBOB Material Groups", "KBOB\nMaterial\ngroups", "List of KBOB material groups", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -32,11 +32,11 @@ namespace Bombyx.Plugin.KBOB
                 "Brick",
                 "Other massive building materials",
                 "Mortar and plaster",
-                "Windows, solar shading and facade cladding",
                 "Metal building materials",
                 "Wood and wooden materials",
                 "Adhesives and joint sealants",
                 "Geomembranes and protective films",
+                "Windows, solar shading and facade cladding",
                 "Thermal insulation",
                 "Flooring",
                 "Doors",
@@ -55,7 +55,7 @@ namespace Bombyx.Plugin.KBOB
         {
             get
             {
-                return Icons.KBOBGroups;
+                return Icons._1KBOB;
             }
         }
 

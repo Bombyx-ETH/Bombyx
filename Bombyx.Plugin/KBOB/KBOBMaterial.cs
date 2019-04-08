@@ -1,6 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using Bombyx.Data.KBOB;
+using System.Collections.Generic;
 
 namespace Bombyx.Plugin.KBOB
 {
@@ -11,50 +12,59 @@ namespace Bombyx.Plugin.KBOB
                  "KBOB Material",
                  "Returns KBOB material details from database",
                  "Bombyx",
-                 "KBOB Data")
+                 "Materials")
         {
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Input", "KBOB ID", "Material", GH_ParamAccess.item);
+            pManager.AddTextParameter("Selected material", "Material", "Selected material from materials list", GH_ParamAccess.item);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("PEnr(Emb)", "PEnr(Emb kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("PEnr(EoL)", "PEnr(EoL kWh oil-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(Emb)", "GWP(Emb kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("GWP(EoL)", "GWP(EoL kg CO\x2082-eq)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(Emb)", "UBP(Emb)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("UBP(EoL)", "UBP(EoL)", "Value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Density", "Density (kg/m\xB3)", "Value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Material properties", "Material\nproperties", "Material property order: " +
+                "\n00: Density " +
+                "\n01: UBP Embodied " +
+                "\n02: UBP EoL " +
+                "\n03: PE Total Embodied " +
+                "\n04: PE Total EoL " +
+                "\n05: PE Renewable Embodied " +
+                "\n06: PE Renewable EoL " +
+                "\n07: PE Non-Renewable Embodied " +
+                "\n08: PE Non-Renewable EoL " +
+                "\n09: GHG Embodied " +
+                "\n10: GHG EoL", GH_ParamAccess.list); 
         }
-
+        
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string data = null;
+            string input = null;
+            if (!DA.GetData(0, ref input)) { return; }
 
-            if (!DA.GetData(0, ref data)) { return; }
-            if (data == null) { return; }
-            if (data.Length == 0) { return; }
+            var material = KBOBdata.GetMaterial(input);
+            var result = new List<object>();
 
-            var material = KBOBdata.GetMaterial(data);
+            result.Add(material.Density);
+            result.Add(material.UBP13Embodied);
+            result.Add(material.UBP13EoL);
+            result.Add(material.TotalEmbodied);
+            result.Add(material.TotalEoL);
+            result.Add(material.RenewableEmbodied);
+            result.Add(material.RenewableEoL);
+            result.Add(material.NonRenewableEmbodied);
+            result.Add(material.NonRenewableEoL);
+            result.Add(material.GHGEmbodied);
+            result.Add(material.GHGEoL);
 
-            DA.SetData(0, material.PEnrfab);
-            DA.SetData(1, material.PEnreol);
-            DA.SetData(2, material.GWPfab);
-            DA.SetData(3, material.GWPeol);
-            DA.SetData(4, material.UBPfab);
-            DA.SetData(5, material.UBPeol);
-            DA.SetData(6, material.Density);
+            DA.SetDataList(0, result);
         }
 
         protected override System.Drawing.Bitmap Icon
         {
             get
             {
-                return Icons.KBOBMaterial;
+                return Icons._3KBOB;
             }
         }
 

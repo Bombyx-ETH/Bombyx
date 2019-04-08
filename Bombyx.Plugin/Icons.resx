@@ -121,25 +121,58 @@
   <data name="bombyxLogo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\bombyxLogo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="KBOBGroups" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\KBOBGroups.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_1component" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1component.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="KBOBMaterial" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\KBOBMaterial.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_1KBOB" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1KBOB.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="KBOBMaterialsList" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\KBOBMaterialsList.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_1layer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1layer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="impactComponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\impactComponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_1window" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1window.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="impactElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\impactElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_2comp" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\2comp.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="impactLayer" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\impactLayer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_2component" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\2component.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="impactWindowDoor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\impactWindowDoor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="_2KBOB" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\2KBOB.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3component" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3component.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3Dcomponent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3Dcomponent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3KBOB" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3KBOB.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_4building" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\4building.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_1energy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1energy.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_1services" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\1services.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_2energy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\2energy.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_2services" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\2services.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3elem" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3elem.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3services" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3services.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_3Dwindow" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\3Dwindow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

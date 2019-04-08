@@ -7,22 +7,22 @@ namespace Bombyx.Plugin.KBOB
     public class KBOBMaterialsList : GH_Component
     {
         public KBOBMaterialsList()
-          : base("KBOB Materials",
+          : base("KBOB Materials list",
                  "KBOB Materials",
-                 "Returns KBOB materials from database",
+                 "Returns list of KBOB materials from database",
                  "Bombyx",
-                 "KBOB Data")
+                 "Materials")
         {
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Material Groups", "Material Groups", "List of materials", GH_ParamAccess.item);
+            pManager.AddTextParameter("Material group", "Material\ngroup", "Selected material group", GH_ParamAccess.item);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Material", "Material", "Material details", GH_ParamAccess.list);
+            pManager.AddTextParameter("Materials", "Materials", "List of KBOB mterials from selected group", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -100,7 +100,7 @@ namespace Bombyx.Plugin.KBOB
         {
             get
             {
-                return Icons.KBOBMaterialsList;
+                return Icons._2KBOB;
             }
         }
 
