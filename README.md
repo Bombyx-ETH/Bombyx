@@ -63,18 +63,18 @@ Materials level method allows user to select any material from the database to d
 
 * <img align="left" src="https://i.imgur.com/ZBn5cud.png"> Layer impact takes material properties (list) and thickness as input parameters
 * <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), reference study period and reference service life as input parameters and returns a list of LCA factors
-* <img align="left" src="https://i.imgur.com/tvMHrQU.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value, and returns a list of window properties
-* <img align="left" src="https://i.imgur.com/UScf1bV.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality () and returns a list of summed input properties
-* <img align="left" src="https://i.imgur.com/littJit.png"> building
+* <img align="left" src="https://i.imgur.com/tvMHrQU.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value; and returns a list of window properties
+* <img align="left" src="https://i.imgur.com/UScf1bV.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality (ext wall, int wall, window, floor, roof, ceiling) as inputs and returns a list of summed input properties
+* <img align="left" src="https://i.imgur.com/littJit.png"> Building impact takes one or more Element impacts, reference study period and net floor area and returns LCA impact results (Global warming potential, Primary energy, UBP)
 
 
 #### Services
 Services
 
 
-* <img align="left" src="https://i.imgur.com/tG3BK1b.png"> KBOB Services groups 
-* <img align="left" src="https://i.imgur.com/sOQekAn.png"> KBOB Services list 
-* <img align="left" src="https://i.imgur.com/QDmu5fd.png"> KBOB Service
+* <img align="left" src="https://i.imgur.com/tG3BK1b.png"> KBOB Services returns a list of predefined energy groups
+* <img align="left" src="https://i.imgur.com/sOQekAn.png"> KBOB Services takes an energy group as input parameter and returns a list of services 
+* <img align="left" src="https://i.imgur.com/QDmu5fd.png"> KBOB Service 
 
 
 #### Energy
