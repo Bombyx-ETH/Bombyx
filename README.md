@@ -37,18 +37,23 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 </p>
 
 ### Bombyx WIP 0.3 version contains:
-* Component level
+#### Component level
+
 <img align="left" src="https://i.imgur.com/nqFFgX6.png"> The purpose of this method is to use predefined components form the database (Bauteilkatalog) to speed up the process of designing elements.
 
 
-<img align="left" src="https://i.imgur.com/F293wrp.png"> Component groups returns groups of components from database
+* <img align="left" src="https://i.imgur.com/F293wrp.png"> Component groups returns a list of groups of components from database
+* <img align="left" src="https://i.imgur.com/WoeUszU.png"> Components returns a list of components from database
+* <img align="left" src="https://i.imgur.com/C7gY4K8.png"> Default component returns a corresponding component from database
+* <img align="left" src="https://i.imgur.com/AUMqIlM.png"> Window component returns a corresponding window component from database
+* <img align="left" src="https://i.imgur.com/V2BobEe.png"> Generated component is currently under development
 
 
-* Material level
+#### Material level
 <img src="https://i.imgur.com/7qWgSIj.png">
 
 
-* Services
+#### Services
 <img src="https://i.imgur.com/XZ7PrYQ.png">
 
 
