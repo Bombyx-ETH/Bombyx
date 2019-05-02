@@ -31,15 +31,16 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
    ```
 
 
-### Usage:
+### Usage with Honeybee_Item Selector:
 <p align="center">
    <img src="https://i.imgur.com/kOlomya.png">
 </p>
 
 ### Bombyx WIP 0.3 version contains:
-#### Component level
+<img src="https://i.imgur.com/Qwha58A.png">
 
-<img align="left" src="https://i.imgur.com/nqFFgX6.png"> The purpose of Component level method is to use predefined components form the database (Bauteilkatalog) to speed up the process of designing elements.
+#### Component level
+The purpose of Component level method is to use predefined components form the database (Bauteilkatalog) to speed up the process of designing elements.
 
 
 * <img align="left" src="https://i.imgur.com/F293wrp.png"> Component groups returns a list of groups of components from database
@@ -49,8 +50,8 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 * <img align="left" src="https://i.imgur.com/V2BobEe.png"> Generated component is currently under development
 
 
-#### Material level
-<img align="left" src="https://i.imgur.com/7qWgSIj.png"> Material level method allows user to select any material from the database, which may result in unrealistic design of layers and components.
+#### Materials
+Materials level method allows user to select any material from the database to design different layer and component impacts (may result in unrealistic design of layers and components)
 
 
 * <img align="left" src="https://i.imgur.com/23wYHjz.png"> KBOB Material groups returns a predefined list of material groups to be connected to item selector
@@ -58,12 +59,17 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 * <img align="left" src="https://i.imgur.com/dRbvd8Y.png"> KBOB Material returns properties of the selected material
 
 
+#### Impacts
+
 * <img align="left" src="https://i.imgur.com/ZBn5cud.png"> Layer impact takes material properties (list) and thickness as input parameters
-* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), Reference study period and Reference service life as input parameters and returns a list of LCA factors
+* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), reference study period and reference service life as input parameters and returns a list of LCA factors
+* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value, and returns a list of window properties
+* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality () and returns a list of summed input properties
+* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> building
 
 
 #### Services
-<img align="left" src="https://i.imgur.com/XZ7PrYQ.png"> Services
+Services
 
 
 ### In development:
