@@ -63,13 +63,26 @@ Materials level method allows user to select any material from the database to d
 
 * <img align="left" src="https://i.imgur.com/ZBn5cud.png"> Layer impact takes material properties (list) and thickness as input parameters
 * <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), reference study period and reference service life as input parameters and returns a list of LCA factors
-* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value, and returns a list of window properties
-* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality () and returns a list of summed input properties
-* <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> building
+* <img align="left" src="https://i.imgur.com/tvMHrQU.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value, and returns a list of window properties
+* <img align="left" src="https://i.imgur.com/UScf1bV.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality () and returns a list of summed input properties
+* <img align="left" src="https://i.imgur.com/littJit.png"> building
 
 
 #### Services
 Services
+
+
+* <img align="left" src="https://i.imgur.com/tG3BK1b.png"> KBOB Services groups 
+* <img align="left" src="https://i.imgur.com/sOQekAn.png"> KBOB Services list 
+* <img align="left" src="https://i.imgur.com/QDmu5fd.png"> KBOB Service
+
+
+#### Energy
+Energy
+
+
+* <img align="left" src="https://i.imgur.com/pUaY2H5.png"> KBOB Energy
+* <img align="left" src="https://i.imgur.com/dUzZUKK.png"> KBOB Energy list 
 
 
 ### In development:
