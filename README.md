@@ -43,6 +43,10 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 * Material level
 <img src="https://i.imgur.com/7qWgSIj.png">
 
+* Services
+<img src="https://i.imgur.com/XZ7PrYQ.png">
+
+
 
 ### In development:
 - Component impact
