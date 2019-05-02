@@ -44,8 +44,8 @@ The purpose of Component level method is to use predefined components form the d
 
 
 * <img align="left" src="https://i.imgur.com/F293wrp.png"> Component groups returns a list of groups of components from database
-* <img align="left" src="https://i.imgur.com/WoeUszU.png"> Components returns a list of components from database
-* <img align="left" src="https://i.imgur.com/C7gY4K8.png"> Default component returns a corresponding component from database
+* <img align="left" src="https://i.imgur.com/WoeUszU.png"> Components takes a component group as input parameter and returns a list of components from database
+* <img align="left" src="https://i.imgur.com/C7gY4K8.png"> Default component requires a component and reference study period as inputs and returns a list LCA factors for the corresponding component
 * <img align="left" src="https://i.imgur.com/AUMqIlM.png"> Window component returns a corresponding window component from database
 * <img align="left" src="https://i.imgur.com/V2BobEe.png"> Generated component is currently under development
 <hr>
@@ -59,11 +59,12 @@ KBOB Energy
 <hr>
 
 #### Impacts
+The main goal of the plug-in is presented with impacts. In case of Materials level approach, the impacts are connected in order: ... > material > layer > component > element > building (layer and component can be replaced with window component from impacts tab) and in case of Component level, the order is: ... > default component > element > building (default component can be replaced with window component from component level tab)
 
 * <img align="left" src="https://i.imgur.com/ZBn5cud.png"> Layer impact takes material properties (list) and thickness as input parameters
 * <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), reference study period and reference service life as input parameters and returns a list of LCA factors
-* <img align="left" src="https://i.imgur.com/tvMHrQU.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value; and returns a list of window properties
-* <img align="left" src="https://i.imgur.com/UScf1bV.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality (ext wall, int wall, window, floor, roof, ceiling) as inputs and returns a list of summed input properties
+* <img align="left" src="https://i.imgur.com/tvMHrQU.png"> Window impact requires multiple inputs from the user: frame properties, filling properties, frame percentage, reference study period, reference service life and U value; and returns a list of window properties (window component is connected to its own Element impact)
+* <img align="left" src="https://i.imgur.com/UScf1bV.png"> Element impact takes one or more Component and/or Window impacts, area in square meters and a functionality (ext wall, int wall, window, floor, roof, ceiling) as inputs and returns a list of LCA factors, U-value and UA-value
 * <img align="left" src="https://i.imgur.com/littJit.png"> Building impact takes one or more Element impacts, reference study period and net floor area and returns LCA impact results (Global warming potential, Primary energy, UBP)
 <hr>
 
