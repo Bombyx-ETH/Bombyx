@@ -38,7 +38,8 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 
 ### Bombyx WIP 0.3 version contains:
 * Component level
-<img src="https://i.imgur.com/nqFFgX6.png"> The purpose of this method is to use predefined components form the database (Bauteilkatalog) to speed up the process of designing elements.
+<img src="https://i.imgur.com/nqFFgX6.png"> 
+The purpose of this method is to use predefined components form the database (Bauteilkatalog) to speed up the process of designing elements.
 
 
 * Material level
