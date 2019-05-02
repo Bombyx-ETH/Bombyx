@@ -33,7 +33,7 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 
 ### Usage:
 <p align="center">
-   <img src="https://i.imgur.com/A6hUShl.png">
+   <img src="https://i.imgur.com/kOlomya.png">
 </p>
 
 ### Bombyx WIP 0.3 version contains:
