@@ -56,7 +56,8 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 * <img align="left" src="https://i.imgur.com/23wYHjz.png"> KBOB Material groups returns a predefined list of material groups to be connected to item selector
 * <img align="left" src="https://i.imgur.com/DsVmjsW.png"> KBOB Materials returns a list of materials from the selected KBOB material group
 * <img align="left" src="https://i.imgur.com/dRbvd8Y.png"> KBOB Material returns properties of the selected material
-<hr>
+
+
 * <img align="left" src="https://i.imgur.com/ZBn5cud.png"> Layer impact takes material properties (list) and thickness as input parameters
 * <img align="left" src="https://i.imgur.com/tjWF6Zl.png"> Component impact takes layer properties (list), Reference study period and Reference service life as input parameters and returns a list of LCA factors
 
@@ -65,12 +66,8 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 <img align="left" src="https://i.imgur.com/XZ7PrYQ.png"> Services
 
 
-
 ### In development:
-- Component impact
-- Element impact
-- Window / Door impact
-- Operational impact
+- Generated components
 
 
 ### Future goals:
