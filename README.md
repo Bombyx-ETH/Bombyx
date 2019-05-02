@@ -50,13 +50,12 @@ The purpose of Component level method is to use predefined components form the d
 * <img align="left" src="https://i.imgur.com/V2BobEe.png"> Generated component is currently under development
 
 
-#### Materials
-Materials level method allows user to select any material from the database to design different layer and component impacts (may result in unrealistic design of layers and components)
+#### Energy
+KBOB Energy
 
 
-* <img align="left" src="https://i.imgur.com/23wYHjz.png"> KBOB Material groups returns a predefined list of material groups to be connected to item selector
-* <img align="left" src="https://i.imgur.com/DsVmjsW.png"> KBOB Materials returns a list of materials from the selected KBOB material group
-* <img align="left" src="https://i.imgur.com/dRbvd8Y.png"> KBOB Material returns properties of the selected material
+* <img align="left" src="https://i.imgur.com/pUaY2H5.png"> KBOB Energy list returns a list of energy carriers from database
+* <img align="left" src="https://i.imgur.com/dUzZUKK.png"> KBOB Energy requires Energy demand and Energy carrier as inputs and returns building energy properties
 
 
 #### Impacts
@@ -68,21 +67,22 @@ Materials level method allows user to select any material from the database to d
 * <img align="left" src="https://i.imgur.com/littJit.png"> Building impact takes one or more Element impacts, reference study period and net floor area and returns LCA impact results (Global warming potential, Primary energy, UBP)
 
 
+#### Materials
+Materials level method allows user to select any material from the database to design different layer and component impacts (may result in unrealistic design of layers and components)
+
+
+* <img align="left" src="https://i.imgur.com/23wYHjz.png"> KBOB Material groups returns a predefined list of material groups to be connected to item selector
+* <img align="left" src="https://i.imgur.com/DsVmjsW.png"> KBOB Materials returns a list of materials from the selected KBOB material group
+* <img align="left" src="https://i.imgur.com/dRbvd8Y.png"> KBOB Material returns properties of the selected material
+
+
 #### Services
-Services
+KBOB Services 
 
 
 * <img align="left" src="https://i.imgur.com/tG3BK1b.png"> KBOB Services returns a list of predefined energy groups
 * <img align="left" src="https://i.imgur.com/sOQekAn.png"> KBOB Services takes an energy group as input parameter and returns a list of services 
-* <img align="left" src="https://i.imgur.com/QDmu5fd.png"> KBOB Service 
-
-
-#### Energy
-Energy
-
-
-* <img align="left" src="https://i.imgur.com/pUaY2H5.png"> KBOB Energy
-* <img align="left" src="https://i.imgur.com/dUzZUKK.png"> KBOB Energy list 
+* <img align="left" src="https://i.imgur.com/QDmu5fd.png"> KBOB Service returns all properties corresponding to the selected service
 
 
 ### In development:
