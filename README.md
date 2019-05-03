@@ -33,6 +33,7 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
 
 ### Installation
 Windows: Plug-in should be located in C:\Users\[username]\AppData\Roaming\Grasshopper\Libraries
+
 Previous version of Bombyx must be deleted from this location in order for the new version to work.
 
 
