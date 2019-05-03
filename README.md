@@ -31,6 +31,11 @@ The Bombyx tool is developed as a plugin for Grasshopper based on Rhinoceros and
    ```
 
 
+### Installation
+Windows: Plug-in should be located in C:\Users\[username]\AppData\Roaming\Grasshopper\Libraries
+Previous version of Bombyx must be deleted from this location in order for the new version to work.
+
+
 ### Usage with Honeybee_Item Selector:
 <p align="center">
    <img src="https://i.imgur.com/kOlomya.png">
@@ -51,7 +56,7 @@ The purpose of Component level method is to use predefined components form the d
 <hr>
 
 #### Energy
-KBOB Energy
+KBOB Energy provide LCA factors
 
 
 * <img align="left" src="https://i.imgur.com/pUaY2H5.png"> KBOB Energy list returns a list of energy carriers from database
@@ -78,7 +83,7 @@ Materials level method allows user to select any material from the database to d
 <hr>
 
 #### Services
-KBOB Services 
+KBOB Services provide LCA factors
 
 
 * <img align="left" src="https://i.imgur.com/tG3BK1b.png"> KBOB Services returns a list of predefined energy groups
