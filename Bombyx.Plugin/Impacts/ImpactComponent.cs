@@ -24,7 +24,7 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Component Properties", "Component\nproperties", "Component properties order: " +
+            pManager.AddNumberParameter("LCA factors", "LCA factors", "Component properties order: " +
                 "\n00: unused " +
                 "\n01: UBP13 Embodied " +
                 "\n02: UBP13 Rep " +

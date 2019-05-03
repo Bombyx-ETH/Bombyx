@@ -34,7 +34,8 @@ namespace Bombyx.Plugin.KBOB
                 "\n07: PE Non-Renewable Embodied " +
                 "\n08: PE Non-Renewable EoL " +
                 "\n09: GHG Embodied " +
-                "\n10: GHG EoL", GH_ParamAccess.list); 
+                "\n10: GHG EoL " + 
+                "\n11: Thermal conductivity", GH_ParamAccess.list); 
         }
         
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -56,6 +57,7 @@ namespace Bombyx.Plugin.KBOB
             result.Add(material.NonRenewableEoL);
             result.Add(material.GHGEmbodied);
             result.Add(material.GHGEoL);
+            result.Add(material.ThermalCond);
 
             DA.SetDataList(0, result);
         }

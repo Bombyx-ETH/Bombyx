@@ -25,7 +25,23 @@ namespace Bombyx.Plugin.CompLevel
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("LCA factors", "LCA factors", "Sum of LCA factors of all materials in the component", GH_ParamAccess.list);
+            pManager.AddTextParameter("Window/Door Properties", "Window/Door\nProperties", "Window properties order: " +
+                "\n00: unused " +
+                "\n01: UBP13 Embodied " +
+                "\n02: UBP13 Rep " +
+                "\n03: UBP13 EoL " +
+                "\n04: PE Total Embodied " +
+                "\n05: PE Total Rep " +
+                "\n06: PE Total EoL " +
+                "\n07: PE Renewable Embodied " +
+                "\n08: PE Renewable Rep " +
+                "\n09: PE Renewable Rep " +
+                "\n10: PE Non-Renewable Embodied " +
+                "\n11: PE Non-Renewable Rep " +
+                "\n12: PE Non-Renewable EoL " +
+                "\n13: GHG Embodied " +
+                "\n14: GHG Rep " +
+                "\n15: GHG EoL", GH_ParamAccess.list);
             pManager.AddNumberParameter("U value", "U value", "Sum of U values", GH_ParamAccess.item);
             pManager.AddNumberParameter("G value", "G value", "Sum of G values", GH_ParamAccess.item);
         }

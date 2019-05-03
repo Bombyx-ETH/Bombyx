@@ -49,12 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompLevel\CompData.cs" />
+    <Compile Include="KBOB\KBOBdata.cs" />
     <Compile Include="Models\ComponentModel.cs" />
     <Compile Include="CompLevel\DBConnectComp.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="KBOB\DBConnectKBOB.cs" />
-    <Compile Include="KBOB\KBOBdata.cs" />
-    <Compile Include="KBOB\KBOBMaterialModel.cs" />
     <Compile Include="Models\MaterialModel.cs" />
     <Compile Include="Models\WindowModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

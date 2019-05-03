@@ -17,9 +17,8 @@
         public decimal NonRenewableEoL { get; set; }
         public decimal GHGEmbodied { get; set; }
         public decimal GHGEoL { get; set; }
-        //public decimal ThermalCond { get; set; }
+        public decimal? ThermalCond { get; set; }
         //public decimal Thickness { get; set; }
-        //public int Layer { get; set; }
         //public decimal Uvalue { get; set; }
     }
 }

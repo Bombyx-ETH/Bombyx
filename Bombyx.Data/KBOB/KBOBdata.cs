@@ -58,6 +58,7 @@ namespace Bombyx.Data.KBOB
                 result.NonRenewableEoL = (decimal)item[16];
                 result.GHGEmbodied = (decimal)item[17];
                 result.GHGEoL = (decimal)item[18];
+                result.ThermalCond = item[19] != DBNull.Value ? (decimal)item[19] : 0;
             }
 
             return result;

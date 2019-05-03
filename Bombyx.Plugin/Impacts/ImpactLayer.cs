@@ -19,7 +19,6 @@ namespace Bombyx.Plugin.Impacts
         {
             pManager.AddNumberParameter("Material", "Material\nproperties", "Material properties", GH_ParamAccess.list);
             pManager.AddNumberParameter("Thickness (meters)", "Thickness (m)", "Number value", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Thermal conductivity", "Thermal cond.\n(W/m*K)", "Thermal conductivity", GH_ParamAccess.item);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
@@ -45,8 +44,6 @@ namespace Bombyx.Plugin.Impacts
             if (!DA.GetDataList(0, material)) { return; }
             var thickness = 0d;
             if (!DA.GetData(1, ref thickness)) { return; }
-            var thermalCond = 0d;
-            if (!DA.GetData(2, ref thermalCond)) { return; }
 
             var result = new List<double>();
             var AreaDensity = 0d;
@@ -61,9 +58,9 @@ namespace Bombyx.Plugin.Impacts
             }
 
             var resistance = 0d;
-            if (thermalCond != 0 && thickness != 0)
+            if (material[11] != 0 && thickness != 0)
             {
-                resistance =  thickness / thermalCond;
+                resistance =  thickness / material[11];
             }
 
             result.Add(material[0]);

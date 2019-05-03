@@ -58,7 +58,7 @@ namespace Bombyx.Data.CompLevel
                 query = "SELECT mat.Id, bk.SortCode, mat.NameEnglish, mat.NameGerman, mat.NameFrench, mat.IdKbob, mat.Disposal, " +
                         "mat.IdDisposal, mat.Density, mat.DensityUnit, mat.Ubp13Embodied, mat.Ubp13EoL, mat.TotalEmbodied, " +
                         "mat.TotalEoL, mat.RenewableEmbodied, mat.RenewableEoL, mat.NonRenewableEmbodied, mat.NonRenewableEoL, " +
-                        "mat.GHGEmbodied, mat.GHGEoL, bk.ThermalCond, bk.Thickness, bk.Layer " +
+                        "mat.GHGEmbodied, mat.GHGEoL, bk.ThermalCond, bk.Thickness, bk.Layer, bk.Percentage " +
                         "FROM KbobMaterial mat " +
                         "LEFT JOIN BtkKbob bk " +
                         "ON mat.Id = bk.IdKbob " +
@@ -90,21 +90,23 @@ namespace Bombyx.Data.CompLevel
             {
                 var tmp = new ComponentModel();
 
+                var percent = (decimal)item[23] / 100;
+
                 tmp.SortCode = item[1].ToString();
                 tmp.NameEnglish = item[2].ToString();
                 tmp.NameGerman = item[3].ToString();
                 tmp.NameFrench = item[4].ToString();
                 tmp.Density = (decimal)item[8];
-                tmp.UBP13Embodied = (decimal)item[10];
-                tmp.UBP13EoL = (decimal)item[11];
-                tmp.TotalEmbodied = (decimal)item[12];
-                tmp.TotalEoL = (decimal)item[13];
-                tmp.RenewableEmbodied = (decimal)item[14];
-                tmp.RenewableEoL = (decimal)item[15];
-                tmp.NonRenewableEmbodied = (decimal)item[16];
-                tmp.NonRenewableEoL = (decimal)item[17];
-                tmp.GHGEmbodied = (decimal)item[18];
-                tmp.GHGEoL = (decimal)item[19];
+                tmp.UBP13Embodied = (decimal)item[10] * percent;
+                tmp.UBP13EoL = (decimal)item[11] * percent;
+                tmp.TotalEmbodied = (decimal)item[12] * percent;
+                tmp.TotalEoL = (decimal)item[13] * percent;
+                tmp.RenewableEmbodied = (decimal)item[14] * percent;
+                tmp.RenewableEoL = (decimal)item[15] * percent;
+                tmp.NonRenewableEmbodied = (decimal)item[16] * percent;
+                tmp.NonRenewableEoL = (decimal)item[17] * percent;
+                tmp.GHGEmbodied = (decimal)item[18] * percent;
+                tmp.GHGEoL = (decimal)item[19] * percent;
                 tmp.ThermalCond = (decimal)item[20];
                 tmp.Thickness = (decimal)item[21];
                 tmp.Layer = (int)item[22];               
