@@ -80,6 +80,11 @@
     <Compile Include="Impacts\ImpactElement.cs" />
     <Compile Include="Impacts\ImpactLayer.cs" />
     <Compile Include="Impacts\ImpactWindowDoor.cs" />
+    <Compile Include="InputLevel\BuildingInput.cs" />
+    <Compile Include="InputLevel\BuildingOutput.cs" />
+    <Compile Include="InputLevel\ComponentInput.cs" />
+    <Compile Include="InputLevel\ElementInput.cs" />
+    <Compile Include="InputLevel\ElementOutput.cs" />
     <Compile Include="KBOB\KBOBEnergy.cs" />
     <Compile Include="KBOB\KBOBEnergyList.cs" />
     <Compile Include="KBOB\KBOBGroups.cs" />
@@ -163,6 +168,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\3Dcomponent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utility\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\5.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
