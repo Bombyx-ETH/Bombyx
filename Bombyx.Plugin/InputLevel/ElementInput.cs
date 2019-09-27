@@ -3,6 +3,8 @@ using Grasshopper.Kernel;
 using System.Collections.Generic;
 using Grasshopper.Kernel.Special;
 using System.Drawing;
+using Bombyx.Data.InputLevel;
+using System.Linq;
 
 namespace Bombyx.Plugin.InputLevel
 {
@@ -10,6 +12,7 @@ namespace Bombyx.Plugin.InputLevel
     {
         GH_Document GrasshopperDocument;
         IGH_Component Component;
+        int counter = 0;
 
         private string[] FUNCTIONALITY = new string[] { "Exterior wall above ground",
                                                         "Exterior wall under ground",
@@ -17,13 +20,16 @@ namespace Bombyx.Plugin.InputLevel
                                                         "Partition wall",
                                                         "Column",
                                                         "Ceiling",
-                                                        "Slab",
+                                                        "Foundation",
                                                         "Pitched roof",
                                                         "Flat roof",
                                                         "Balcony",
                                                         "Windows" };
 
-        private string[] CONSTRUCTION_TYPE = new string[] { "Homogenous (massive)", "Inhomogenous (frame)" };
+        private string[] CONSTRUCTION_TYPE = new string[] { "Homogenous (concrete)", "Inhomogenous (concrete)",
+                                                            "Massive (wood)", "Frame (wood)",
+                                                            "With insulation (brick)", "Without insulation (brick)"};
+        
         private string[] STRUCTUAL_VALUES = new string[] { "Concrete", "Wood", "Brick", "Steel" };
 
         public ElementInput()
@@ -33,7 +39,7 @@ namespace Bombyx.Plugin.InputLevel
                  "Bombyx",
                  "Input level")
         {
-            Message = "Connect Building input component\nto the first input parameter.";
+            Message = "Connect Building input\nto the first input parameter.";
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
@@ -44,13 +50,17 @@ namespace Bombyx.Plugin.InputLevel
             pManager[1].Optional = true;
             pManager.AddTextParameter("Construction type", "Construction type", "Construction type", GH_ParamAccess.item);
             pManager[2].Optional = true;
-            pManager.AddTextParameter("Structural material", "Structural material", "Structural material", GH_ParamAccess.item);
+            //pManager.AddTextParameter("Structural material (testing)", "Structural material (testing)", "Structural material (testing)", GH_ParamAccess.item);
+            //pManager[3].Optional = true;
+            pManager.AddIntegerParameter("Area (m2)", "Area (m2)", "Area (m2)", GH_ParamAccess.item);
             pManager[3].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Element output", "Element output", "Element output", GH_ParamAccess.item);
+            pManager.AddTextParameter("Element output\n(debug)", "Element output\n(debug)", "Element output\n(debug)", GH_ParamAccess.list);
+            pManager.AddTextParameter("Element output\n(avg, min, max)", "Element output\n(avg, min, max)", "Element output\n(avg, min, max)", GH_ParamAccess.list);
+            pManager.AddTextParameter("Element output\n(detail)", "Element output\n(detail)", "Element output\n(detail)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -60,97 +70,189 @@ namespace Bombyx.Plugin.InputLevel
 
             string functionality = "";
             string constType = "";
-            string structural = "";
+            //string structural = "";
+            int area = 0;
+            string[] sqlLoop = new string[] { "AVG", "MIN", "MAX" };
+
             var input = new List<string>();
+            var output = new Dictionary<string, decimal>();
 
             var isConnected = false;
             if (Params.Input[0].SourceCount == 1)
             {
                 isConnected = true;
+                Message = "Component activated.";
                 if (!DA.GetDataList(0, input)) { return; }
+                counter++;                
             }
-            
-            if (isConnected &&
-                Params.Input[1].SourceCount == 0 &&
-                Params.Input[2].SourceCount == 0 &&
-                Params.Input[3].SourceCount == 0)
+
+            if (counter == 1)
             {
-                CreateAccentList(FUNCTIONALITY, "Functionality", 1, 280, 0);
-                CreateAccentList(CONSTRUCTION_TYPE, "Construction type", 2, 265, 10);
-                CreateAccentList(STRUCTUAL_VALUES, "Structual material", 3, 195, 20);
-                Message = "Component connected.";
+                CreateAccentList(FUNCTIONALITY, "Functionality", 1, 280, -20);
+                CreateAccentList(CONSTRUCTION_TYPE, "Construction type", 2, 275, -10);
+                //CreateAccentList(STRUCTUAL_VALUES, "Structual material", 3, 195, 0);
+
+                counter++;
+            }
+
+            if (isConnected)
+            {
+                var element = "";
 
                 DA.GetData(1, ref functionality);
                 DA.GetData(2, ref constType);
-                DA.GetData(3, ref structural);
+                //.GetData(3, ref structural);
+
+                switch (functionality)
+                {
+                    case "Exterior wall above ground":
+                        element = "('C2.1', 'E2', 'G3')";
+                        break;
+                    case "Exterior wall under ground":
+                        element = "('C2.1', 'E1')";
+                        break;
+                    case "Interior wall":
+                        element = "('C2.2', 'G3')";
+                        break;
+                    case "Partition wall":
+                        element = "('G1', 'G3')";
+                        break;
+                    case "Column":
+                        element = "('C3')";
+                        break;
+                    case "Ceiling":
+                        element = "('C4.1', 'G4', 'G2')";
+                        break;
+                    case "Foundation":
+                        element = "('C1', 'G2')";
+                        break;
+                    case "Pitched roof":
+                        element = "('C4.4', 'F1', 'G4')";
+                        break;
+                    case "Flat roof":
+                        element = "('C4.4', 'F1', 'G4')";
+                        break;
+                    case "Balcony":
+                        element = "('C4.3')";
+                        break;
+                    case "Windows":
+                        element = "window";
+                        break;
+                }
+
+                DA.GetData(3, ref area);
+
+                foreach (var query in sqlLoop)
+                {
+                    var sqlOutput = "";
+                    if (!element.Equals("window"))
+                    {
+                        sqlOutput = "SELECT SUM(x.Ubp13Embodied) AS Ubp13Embodied, SUM(x.Ubp13EoL) AS Ubp13EoL, " +
+                                    "SUM(x.TotalEmbodied) AS TotalEmbodied, SUM(x.TotalEoL) AS TotalEoL, " +
+                                    "SUM(x.RenewableEmbodied)AS RenewableEmbodied, SUM(x.RenewableEoL) AS RenewableEoL, " +
+                                    "SUM(x.NonRenewableEmbodied) AS NonRenewableEmbodied, SUM(x.NonRenewableEoL) AS NonRenewableEoL, " +
+                                    "SUM(x.GHGEmbodied) AS GHGEmbodied, SUM(x.GHGEoL) AS GHGEoL ";
+
+                        sqlOutput += "FROM (SELECT bc.ComponentCode, " + query + "(kmg.Ubp13Embodied) AS Ubp13Embodied, " +
+                                     "" + query + "(kmg.Ubp13EoL) AS Ubp13EoL, " + query + "(kmg.TotalEmbodied) AS TotalEmbodied, " +
+                                     "" + query + "(kmg.TotalEoL) AS TotalEoL, " + query + "(kmg.RenewableEmbodied)AS RenewableEmbodied, " +
+                                     "" + query + "(kmg.RenewableEoL) AS RenewableEoL, " + query + "(kmg.NonRenewableEmbodied) AS NonRenewableEmbodied, " +
+                                     "" + query + "(kmg.NonRenewableEoL) AS NonRenewableEoL, " + query + "(kmg.GHGEmbodied) AS GHGEmbodied, " +
+                                     "" + query + "(kmg.GHGEoL) AS GHGEoL " +
+                                     "FROM dbo.BtkComponent bc LEFT JOIN dbo.KbobMaterialGen kmg ON bc.SortCode = kmg.SortCode " +
+                                     "WHERE bc.ComponentCode IN " + element + " AND ";
+
+                        switch (input[0])
+                        {
+                            case "Small":
+                                sqlOutput += "bc.BuildingSizeSmall = 1 ";
+                                break;
+                            case "Mid-size":
+                                sqlOutput += "bc.BuildingSizeMid = 1 ";
+                                break;
+                            case "Highrise":
+                                sqlOutput += "bc.BuildingSizeHighrise = 1 ";
+                                break;
+                        }
+
+                        switch (input[1])
+                        {
+                            case "Residential single family":
+                                sqlOutput += "AND bc.BuildingUsageSF = 1 ";
+                                break;
+                            case "Residential multi family":
+                                sqlOutput += "AND bc.BuildingUsageMF = 1 ";
+                                break;
+                            case "Office":
+                                sqlOutput += "AND bc.BuildingUsageOffice = 1 ";
+                                break;
+                        }
+
+                        switch (input[2])
+                        {
+                            case "Standard":
+                                sqlOutput += "AND bc.BuildingEnergyStandard = 1 ";
+                                break;
+                            case "Above average":
+                                sqlOutput += "AND bc.BuildingEnergyAboveAvg = 1 ";
+                                break;
+                            case "Passive house":
+                                sqlOutput += "AND bc.BuildingEnergyPassivehouse = 1 ";
+                                break;
+                        }
+
+                        switch (input[3])
+                        {
+                            case "Concrete":
+                                sqlOutput += "AND bc.StructMaterialConcrete = 1 ";
+                                break;
+                            case "Wood":
+                                sqlOutput += "AND bc.StructMaterialWood = 1 ";
+                                break;
+                            case "Brick":
+                                sqlOutput += "AND bc.StructMaterialBrick = 1 ";
+                                break;
+                            case "Steel":
+                                sqlOutput += "AND bc.StructMaterialSteel = 1 ";
+                                break;
+                        }
+
+                        sqlOutput += "GROUP BY bc.ComponentCode) x";
+                    }
+                    else
+                    {
+                        sqlOutput = "SELECT " + query + "(km.Ubp13Embodied) AS Ubp13Embodied, " + query + "(km.Ubp13EoL) AS Ubp13EoL, " +
+                                    "" + query + "(km.TotalEmbodied) AS TotalEmbodied, " + query + "(km.TotalEoL) AS TotalEoL, " +
+                                    "" + query + "(km.RenewableEmbodied)AS RenewableEmbodied, " + query + "(km.RenewableEoL) AS RenewableEoL, " +
+                                    "" + query + "(km.NonRenewableEmbodied) AS NonRenewableEmbodied, " + query + "(km.NonRenewableEoL) AS NonRenewableEoL, " +
+                                    "" + query + "(km.GHGEmbodied) AS GHGEmbodied, " + query + "(km.GHGEoL) AS GHGEoL " +
+                                    "FROM dbo.BtkWindows bw " +
+                                    "LEFT JOIN dbo.BtkKbobWindow bkw " +
+                                    "ON bw.SortCode = bkw.SortCode " +
+                                    "LEFT JOIN dbo.KbobMaterial km " +
+                                    "ON bkw.IdKbob = km.Id";
+                    }                   
+
+                    foreach (var item in InputData.GetElementsInputList(sqlOutput))
+                    {
+                        output.Add(query + " UBP13Embodied", item.UBP13Embodied * area);
+                        output.Add(query + " UBP13EoL", item.UBP13EoL * area);
+                        output.Add(query + " TotalEmbodied", item.TotalEmbodied * area);
+                        output.Add(query + " TotalEoL", item.TotalEoL * area);
+                        output.Add(query + " RenewableEmbodied", item.RenewableEmbodied * area);
+                        output.Add(query + " RenewableEoL", item.RenewableEoL * area);
+                        output.Add(query + " NonRenewableEmbodied", item.NonRenewableEmbodied * area);
+                        output.Add(query + " NonRenewableEoL", item.NonRenewableEoL * area);
+                        output.Add(query + " GHGEmbodied", item.GHGEmbodied * area);
+                        output.Add(query + " GHGEoL", item.GHGEoL * area);
+                    }
+                }   
             }
 
-            var outputList = new List<string>();
-            outputList.Add(functionality);
-            outputList.Add(constType);
-            outputList.Add(structural);
+            var outputValues = output.Values.ToList();
 
-            var sqlOutput = "SELECT * FROM dbo.BtkComponent bc WHERE ";
-
-            if(isConnected)
-            {
-                switch (input[0])
-                {
-                    case "Small":
-                        sqlOutput += "bc.BuildingSizeSmall = 1 ";
-                        break;
-                    case "Mid-size":
-                        sqlOutput += "bc.BuildingSizeMid = 1 ";
-                        break;
-                    case "Highrise":
-                        sqlOutput += "bc.BuildingSizeHighrise = 1 ";
-                        break;
-                }
-
-                switch (input[1])
-                {
-                    case "Residential single family":
-                        sqlOutput += "AND bc.BuildingUsageSF = 1 ";
-                        break;
-                    case "Residential multi family":
-                        sqlOutput += "AND bc.BuildingUsageMF = 1 ";
-                        break;
-                    case "Office":
-                        sqlOutput += "AND bc.BuildingUsageOffice = 1 ";
-                        break;
-                }
-
-                switch (input[2])
-                {
-                    case "Standard":
-                        sqlOutput += "AND bc.BuildingEnergyStandard = 1 ";
-                        break;
-                    case "Above average":
-                        sqlOutput += "AND bc.BuildingEnergyAboveAvg = 1 ";
-                        break;
-                    case "Passive house":
-                        sqlOutput += "AND bc.BuildingEnergyPassivehouse = 1 ";
-                        break;
-                }
-
-                switch (input[3])
-                {
-                    case "Concrete":
-                        sqlOutput += "AND bc.StructMaterialConcrete = 1";
-                        break;
-                    case "Wood":
-                        sqlOutput += "AND bc.StructMaterialWood = 1";
-                        break;
-                    case "Brick":
-                        sqlOutput += "AND bc.StructMaterialBrick = 1";
-                        break;
-                    case "Steel":
-                        sqlOutput += "AND bc.StructMaterialSteel = 1 ";
-                        break;
-                }
-            }         
-
-            DA.SetData(0, sqlOutput);
+            DA.SetDataList(0, output);
+            DA.SetDataList(1, outputValues);
         }
 
         private void CreateAccentList(string[] values, string nick, int inputParam, int offsetX, int offsetY)

@@ -1,16 +1,13 @@
 ﻿using System;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Special;
 using System.Drawing;
 using System.Collections.Generic;
+using Bombyx.Data.InputLevel;
 
 namespace Bombyx.Plugin.InputLevel
 {
     public class ComponentInput : GH_Component
     {
-        GH_Document GrasshopperDocument;
-        IGH_Component Component;
-
         public ComponentInput()
           : base("Component Input",
                  "Component input",
@@ -18,59 +15,131 @@ namespace Bombyx.Plugin.InputLevel
                  "Bombyx",
                  "Input level")
         {
+            Message = "Connect Element output\nto the first input parameter.";
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Element input", "Element input", "Element input", GH_ParamAccess.list);
-            pManager.AddTextParameter("RSP (years)", "RSP (years)", "RSP (years)", GH_ParamAccess.item);
+            pManager[0].Optional = true;
+            pManager.AddIntegerParameter("RSP (years)", "RSP (years)", "RSP (years)", GH_ParamAccess.item);
+            pManager[1].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Component output", "Component output", "Component output", GH_ParamAccess.item);
-            pManager.AddTextParameter("Component min output", "Component min output", "Component min output", GH_ParamAccess.item);
-            pManager.AddTextParameter("Component max output", "Component max output", "Component max output", GH_ParamAccess.item);
+            pManager.AddTextParameter("Component avg output", "Component avg output", "Component avg output", GH_ParamAccess.list);
+            pManager.AddTextParameter("Component min output", "Component min output", "Component min output", GH_ParamAccess.list);
+            pManager.AddTextParameter("Component max output", "Component max output", "Component max output", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Component = this;
-            GrasshopperDocument = OnPingDocument();
-
             var input = new List<string>();
-            if (!DA.GetDataList(0, input)) { return; }
-        }
 
-        private void CreateAccentList(string[] values, string nick, int inputParam, int offsetX, int offsetY)
-        {
-            GH_DocumentIO docIO = new GH_DocumentIO();
-            docIO.Document = new GH_Document();
-
-            GH_ValueList vl = new GH_ValueList();
-            vl.ListItems.Clear();
-
-            foreach (string item in values)
+            var isConnected = false;
+            if (Params.Input[0].SourceCount == 1)
             {
-                GH_ValueListItem vi = new GH_ValueListItem(item, String.Format("\"{0}\"", item));
-                vl.ListItems.Add(vi);
+                isConnected = true;
+                if (!DA.GetDataList(0, input)) { return; }
             }
 
-            vl.NickName = nick;
-            GH_Document doc = OnPingDocument();
-            if (docIO.Document == null) return;
+            if (isConnected)
+            {
+                Message = "Component connected.\nProvide RSP in years.";
+            }
 
-            docIO.Document.AddObject(vl, false, inputParam);
-            PointF currPivot = Params.Input[inputParam].Attributes.Pivot;
-            vl.Attributes.Pivot = new PointF(currPivot.X - offsetX, currPivot.Y + offsetY);
+            var rsp = 0;
+            if (!DA.GetData(1, ref rsp)) { return; }
 
-            docIO.Document.SelectAll();
-            docIO.Document.ExpireSolution();
-            docIO.Document.MutateAllIds();
-            IEnumerable<IGH_DocumentObject> objs = docIO.Document.Objects;
-            doc.MergeDocument(docIO.Document);
-            Component.Params.Input[inputParam].AddSource(vl);
-            doc.DeselectAll();
+            if (isConnected && Params.Input[1].SourceCount == 1)
+            {
+                Message = "Component connected.";
+                //var sortCode = input.Split('|');
+                //var x = "";
+
+            }
+
+            var sqlOutput = "SELECT AVG(kmg.Ubp13Embodied) AS Ubp13Embodied, AVG(kmg.Ubp13EoL) AS Ubp13EoL, " +
+                            "AVG(kmg.TotalEmbodied) AS TotalEmbodied, AVG(kmg.TotalEoL) AS TotalEoL, " +
+                            "AVG(kmg.RenewableEmbodied)AS RenewableEmbodied, AVG(kmg.RenewableEoL) AS RenewableEoL, " +
+                            "AVG(kmg.NonRenewableEmbodied) AS NonRenewableEmbodied, AVG(kmg.NonRenewableEoL) AS NonRenewableEoL, " +
+                            "AVG(kmg.GHGEmbodied) AS GHGEmbodied, AVG(kmg.GHGEoL) AS GHGEoL FROM dbo.BtkComponent bc " +
+                            "LEFT JOIN dbo.KbobMaterialGen kmg ON bc.SortCode = kmg.SortCode WHERE bc.ComponentCode IN " + input[4] + " AND ";
+
+
+            switch (input[0])
+            {
+                case "Small":
+                    sqlOutput += "bc.BuildingSizeSmall = 1 ";
+                    break;
+                case "Mid-size":
+                    sqlOutput += "bc.BuildingSizeMid = 1 ";
+                    break;
+                case "Highrise":
+                    sqlOutput += "bc.BuildingSizeHighrise = 1 ";
+                    break;
+            }
+
+            switch (input[1])
+            {
+                case "Residential single family":
+                    sqlOutput += "AND bc.BuildingUsageSF = 1 ";
+                    break;
+                case "Residential multi family":
+                    sqlOutput += "AND bc.BuildingUsageMF = 1 ";
+                    break;
+                case "Office":
+                    sqlOutput += "AND bc.BuildingUsageOffice = 1 ";
+                    break;
+            }
+
+            switch (input[2])
+            {
+                case "Standard":
+                    sqlOutput += "AND bc.BuildingEnergyStandard = 1 ";
+                    break;
+                case "Above average":
+                    sqlOutput += "AND bc.BuildingEnergyAboveAvg = 1 ";
+                    break;
+                case "Passive house":
+                    sqlOutput += "AND bc.BuildingEnergyPassivehouse = 1 ";
+                    break;
+            }
+
+            switch (input[3])
+            {
+                case "Concrete":
+                    sqlOutput += "AND bc.StructMaterialConcrete = 1";
+                    break;
+                case "Wood":
+                    sqlOutput += "AND bc.StructMaterialWood = 1";
+                    break;
+                case "Brick":
+                    sqlOutput += "AND bc.StructMaterialBrick = 1";
+                    break;
+                case "Steel":
+                    sqlOutput += "AND bc.StructMaterialSteel = 1 ";
+                    break;
+            }
+
+            var output = new Dictionary<string, decimal>();
+
+            foreach (var item in InputData.GetElementsInputList(sqlOutput))
+            {
+                output.Add("UBP13Embodied", item.UBP13Embodied);
+                output.Add("UBP13EoL", item.UBP13EoL);
+                output.Add("TotalEmbodied", item.TotalEmbodied);
+                output.Add("TotalEoL", item.TotalEoL);
+                output.Add("RenewableEmbodied", item.RenewableEmbodied);
+                output.Add("RenewableEoL", item.RenewableEoL);
+                output.Add("NonRenewableEmbodied", item.NonRenewableEmbodied);
+                output.Add("NonRenewableEoL", item.NonRenewableEoL);
+                output.Add("GHGEmbodied", item.GHGEmbodied);
+                output.Add("GHGEoL", item.GHGEoL);
+            }
+
+            DA.SetDataList(0, output);
         }
 
         protected override Bitmap Icon
