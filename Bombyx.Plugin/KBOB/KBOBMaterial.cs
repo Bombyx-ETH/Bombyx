@@ -2,6 +2,7 @@
 using Grasshopper.Kernel;
 using Bombyx.Data.KBOB;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bombyx.Plugin.KBOB
 {
@@ -23,19 +24,8 @@ namespace Bombyx.Plugin.KBOB
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Material properties", "Material\nproperties", "Material property order: " +
-                "\n00: Density " +
-                "\n01: UBP Embodied " +
-                "\n02: UBP EoL " +
-                "\n03: PE Total Embodied " +
-                "\n04: PE Total EoL " +
-                "\n05: PE Renewable Embodied " +
-                "\n06: PE Renewable EoL " +
-                "\n07: PE Non-Renewable Embodied " +
-                "\n08: PE Non-Renewable EoL " +
-                "\n09: GHG Embodied " +
-                "\n10: GHG EoL " + 
-                "\n11: Thermal conductivity", GH_ParamAccess.list); 
+            pManager.AddTextParameter("Material properties (text)", "Material\nproperties (text)", "Material properties (text)", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Material properties (values)", "Material\nproperties (values)", "Material properties (values)", GH_ParamAccess.list);
         }
         
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -44,22 +34,25 @@ namespace Bombyx.Plugin.KBOB
             if (!DA.GetData(0, ref input)) { return; }
 
             var material = KBOBdata.GetMaterial(input);
-            var result = new List<object>();
+            var output = new Dictionary<string, double>();
 
-            result.Add(material.Density);
-            result.Add(material.UBP13Embodied);
-            result.Add(material.UBP13EoL);
-            result.Add(material.TotalEmbodied);
-            result.Add(material.TotalEoL);
-            result.Add(material.RenewableEmbodied);
-            result.Add(material.RenewableEoL);
-            result.Add(material.NonRenewableEmbodied);
-            result.Add(material.NonRenewableEoL);
-            result.Add(material.GHGEmbodied);
-            result.Add(material.GHGEoL);
-            result.Add(material.ThermalCond);
+            output.Add("Density (kg/m\xB3)", (double?)material.Density ?? -1);
+            output.Add("UBP13 Embodied (P/m\xB2 a)", (double)material.UBP13Embodied);
+            output.Add("UBP13 End of Life (P/m\xB2 a)", (double)material.UBP13EoL);
+            output.Add("Total Embodied (kWh oil-eq)", (double)material.TotalEmbodied);
+            output.Add("Total End of Life (kWh oil-eq)", (double)material.TotalEoL);
+            output.Add("Renewable Embodied (kWh oil-eq)", (double)material.RenewableEmbodied);
+            output.Add("Renewable End of Life (kWh oil-eq)", (double)material.RenewableEoL);
+            output.Add("Non Renewable Embodied (kWh oil-eq)", (double)material.NonRenewableEmbodied);
+            output.Add("Non Renewable End of Life (kWh oil-eq)", (double)material.NonRenewableEoL);
+            output.Add("Green House Gases Embodied (kg CO\x2082-eq/m\xB2 a)", (double)material.GHGEmbodied);
+            output.Add("Green House Gases End of Life (kg CO\x2082-eq/m\xB2 a)", (double)material.GHGEoL);
+            output.Add("Thermal Conductivity (W/m*K)", (double?)material.ThermalCond ?? -1);
 
-            DA.SetDataList(0, result);
+            var outputValues = output.Values.ToList();
+
+            DA.SetDataList(0, output);
+            DA.SetDataList(1, outputValues);
         }
 
         protected override System.Drawing.Bitmap Icon

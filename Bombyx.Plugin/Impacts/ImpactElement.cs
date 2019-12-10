@@ -1,11 +1,20 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using System.Collections.Generic;
+using System.Linq;
+using Grasshopper.Kernel.Special;
+using System.Drawing;
 
 namespace Bombyx.Plugin.Impacts
 {
     public class ImpactElement : GH_Component
     {
+        GH_Document GrasshopperDocument;
+        IGH_Component Component;
+        bool isConnected = false;
+
+        private string[] FUNCT_VALUES = new string[] { "External wall", "Internal wall", "Floor", "Ceiling", "Roof", "Window" };
+
         public ImpactElement()
           : base("Element impact",
                  "Element impact",
@@ -17,146 +26,176 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Component Properties", "Component\nProperties", "List of component properties", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Component properties", "Component\nproperties", "List of component properties", GH_ParamAccess.list);
+            pManager.AddTextParameter("Functionality", "Functionality", "By selecting element functionality, air resistance will be added to the U value.", GH_ParamAccess.item);
+            pManager[1].Optional = true;
             pManager.AddNumberParameter("Area (square meters)", "Area (m\xB2)", "Manual value", GH_ParamAccess.item);
-            pManager.AddTextParameter("Functionality", "Functionality", "Functionalities:\n'ext wall'\n'int wall'\n'window'\n'floor'\n'roof'", GH_ParamAccess.item);
-            pManager[0].DataMapping = GH_DataMapping.Flatten;
+            pManager[2].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Element Properties", "LCA Factors\nElement", "LCA factors order: " +
-                "\n00:UBP13 Embodied " +
-                "\n01:UBP13 Rep " +
-                "\n02:UBP13 EoL " +
-                "\n03:PE Total Embodied " +
-                "\n04:PE Total Rep " +
-                "\n05:PE Total EoL " +
-                "\n06:PE Renewable Embodied " +
-                "\n07:PE Renewable Rep " +
-                "\n08:PE Renewable EoL " +
-                "\n09:PE Non-Renewable Embodied " +
-                "\n10:PE Non-Renewable Rep " +
-                "\n11:PE Non-Renewable EoL " +
-                "\n12:GHG Embodied " +
-                "\n13:GHG Rep " +
-                "\n14:GHG EoL", GH_ParamAccess.list);
+            pManager.AddTextParameter("LCA factors (text)", "LCA factors (text)", "Element Properties (text)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("LCA factors (values)", "LCA factors (values)", "Element Properties (values)", GH_ParamAccess.item);
             pManager.AddNumberParameter("U value", "U value\n(W/m2*K)", "U Value", GH_ParamAccess.item);
             pManager.AddNumberParameter("UA value", "UA value\n(W/K)", "Area U Value", GH_ParamAccess.item);
         }
 
-        public static IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize)
-        {
-            for (int i = 0; i < locations.Count; i += nSize)
-            {
-                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
-            }
-        }
-
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            Component = this;
+            GrasshopperDocument = OnPingDocument();
+
             var component = new List<double>();
             if (!DA.GetDataList(0, component)) { return; }
-            var area = 0d;
-            if (!DA.GetData(1, ref area)) { return; }
+
+            if (!isConnected)
+            {
+                CreateFunctList(FUNCT_VALUES, "Functionality", 1, 200, -20);
+                isConnected = true;
+                ExpireSolution(true);
+            }
+
             var funct = "";
-            if (!DA.GetData(2, ref funct)) { return; }
-
-            var inputs = SplitList(component, 17);
-            var result = new List<double>();
-
-            var UBP13EmbodiedSum = 0d;
-            var UBP13RepSum = 0d;
-            var UBP13EoLSum = 0d;
-            var TotalEmbodiedSum = 0d;
-            var TotalRepSum = 0d;
-            var TotalEoLSum = 0d;
-            var RenewableEmbodiedSum = 0d;
-            var RenewableRepSum = 0d;
-            var RenewableEoLSum = 0d;
-            var NonRenewableEmbodiedSum = 0d;
-            var NonRenewableRepSum = 0d;
-            var NonRenewableEoLSum = 0d;
-            var GHGEmbodiedSum = 0d;
-            var GHGRepSum = 0d;
-            var GHGEoLEoLSum = 0d;
-            var UvalueSum = 0d;
-
-            foreach (var item in inputs)
+            if (isConnected)
             {
-                UBP13EmbodiedSum = UBP13EmbodiedSum + item[1];
-                UBP13RepSum = UBP13RepSum + item[2];
-                UBP13EoLSum = UBP13EoLSum + item[3];
-                TotalEmbodiedSum = TotalEmbodiedSum + item[4];
-                TotalRepSum = TotalRepSum + item[5];
-                TotalEoLSum = TotalEoLSum + item[6];
-                RenewableEmbodiedSum = RenewableEmbodiedSum +item[7];
-                RenewableRepSum = RenewableRepSum + item[8];
-                RenewableEoLSum = RenewableEoLSum + item[9];
-                NonRenewableEmbodiedSum = NonRenewableEmbodiedSum + item[10];
-                NonRenewableRepSum = NonRenewableRepSum + item[11];
-                NonRenewableEoLSum = NonRenewableEoLSum + item[12];
-                GHGEmbodiedSum = GHGEmbodiedSum + item[13];
-                GHGRepSum = GHGRepSum + item[14];
-                GHGEoLEoLSum = GHGEoLEoLSum + item[15];
-                UvalueSum = UvalueSum + item[16];
+                if (!DA.GetData(1, ref funct)) { return; }
             }
 
-            result.Add(UBP13EmbodiedSum * area);
-            result.Add(UBP13RepSum * area);
-            result.Add(UBP13EoLSum * area);
-            result.Add(TotalEmbodiedSum * area);
-            result.Add(TotalRepSum * area);
-            result.Add(TotalEoLSum * area);
-            result.Add(RenewableEmbodiedSum * area);
-            result.Add(RenewableRepSum * area);
-            result.Add(RenewableEoLSum * area);
-            result.Add(NonRenewableEmbodiedSum * area);
-            result.Add(NonRenewableRepSum * area);
-            result.Add(NonRenewableEoLSum * area);
-            result.Add(GHGEmbodiedSum * area);
-            result.Add(GHGRepSum * area);
-            result.Add(GHGEoLEoLSum * area);
+            var area = 0d;
+            if (!DA.GetData(2, ref area)) { return; }          
 
-            DA.SetDataList(0, result);
-            if(funct.Equals("window"))
+            var valueSets = component.Select((x, i) => new { Index = i, Value = x })
+                                     .GroupBy(x => x.Index / 16)
+                                     .Select(x => x.Select(v => v.Value).ToList())
+                                     .ToList();           
+
+            var results = new Dictionary<string, double>
             {
-                DA.SetData(1, UvalueSum);
-                DA.SetData(2, UvalueSum * area);
+                { "UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "UBP13 Replacements (P/m\xB2 a)", 0 },
+                { "UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Total Embodied (kWh oil-eq)", 0 },
+                { "Total Replacements (kWh oil-eq)", 0 },
+                { "Total End of Life (kWh oil-eq)", 0 },
+                { "Renewable Embodied (kWh oil-eq)", 0 },
+                { "Renewable Replacements (kWh oil-eq)", 0 },
+                { "Renewable End of Life (kWh oil-eq)", 0 },
+                { "Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Non Renewable Replacements (kWh oil-eq)", 0 },
+                { "Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "U value", 0 }
+            };
+
+            foreach (var item in valueSets)
+            {
+                results["UBP13 Embodied (P/m\xB2 a)"] += item[0];
+                results["UBP13 Replacements (P/m\xB2 a)"] += item[1];
+                results["UBP13 End of Life (P/m\xB2 a)"] += item[2];
+                results["Total Embodied (kWh oil-eq)"] += item[3];
+                results["Total Replacements (kWh oil-eq)"] += item[4];
+                results["Total End of Life (kWh oil-eq)"] += item[5];
+                results["Renewable Embodied (kWh oil-eq)"] += item[6];
+                results["Renewable Replacements (kWh oil-eq)"] += item[7];
+                results["Renewable End of Life (kWh oil-eq)"] += item[8];
+                results["Non Renewable Embodied (kWh oil-eq)"] += item[9];
+                results["Non Renewable Replacements (kWh oil-eq)"] += item[10];
+                results["Non Renewable End of Life (kWh oil-eq)"] += item[11];
+                results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[12];
+                results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] += item[13];
+                results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[14];
+                results["U value"] += item[15];
             }
-            else if (funct.Equals("int wall"))
+
+            results["UBP13 Embodied (P/m\xB2 a)"] *= area;
+            results["UBP13 Replacements (P/m\xB2 a)"] *= area;
+            results["UBP13 End of Life (P/m\xB2 a)"] *= area;
+            results["Total Embodied (kWh oil-eq)"] *= area;
+            results["Total Replacements (kWh oil-eq)"] *= area;
+            results["Total End of Life (kWh oil-eq)"] *= area;
+            results["Renewable Embodied (kWh oil-eq)"] *= area;
+            results["Renewable Replacements (kWh oil-eq)"] *= area;
+            results["Renewable End of Life (kWh oil-eq)"] *= area;
+            results["Non Renewable Embodied (kWh oil-eq)"] *= area;
+            results["Non Renewable Replacements (kWh oil-eq)"] *= area;
+            results["Non Renewable End of Life (kWh oil-eq)"] *= area;
+            results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] *= area;
+            results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] *= area;
+            results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] *= area;
+            results["U value"] = 1 / results["U value"];
+
+            var resultValues = results.Values.ToList();
+
+            DA.SetDataList(0, results);
+            DA.SetDataList(1, resultValues);
+
+            if (funct.Equals("Window"))
             {
-                DA.SetData(1, 1 / (UvalueSum + 0.17));
-                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
+                DA.SetData(2, 1 / results["U value"]);
+                DA.SetData(3, (1 / results["U value"]) * area);
             }
-            else if(funct.Equals("ext wall"))
+            else if (funct.Equals("Internal wall"))
             {
-                DA.SetData(1, 1 / (UvalueSum + 0.17));
-                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
+                DA.SetData(2, results["U value"] + 0.17);
+                DA.SetData(3, (results["U value"] + 0.17) * area);
             }
-            else if (funct.Equals("roof"))
+            else if(funct.Equals("External wall"))
             {
-                DA.SetData(1, 1 / (UvalueSum + 0.17));
-                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
+                DA.SetData(2, results["U value"] + 0.17);
+                DA.SetData(3, (results["U value"] + 0.17) * area);
             }
-            else if (funct.Equals("ceiling"))
+            else if (funct.Equals("Roof"))
             {
-                DA.SetData(1, 1 / (UvalueSum + 0.17));
-                DA.SetData(2, (1 / (UvalueSum + 0.17)) * area);
+                DA.SetData(2, results["U value"] + 0.17);
+                DA.SetData(3, (results["U value"] + 0.17) * area);
             }
-            else if (funct.Equals("floor"))
+            else if (funct.Equals("Ceiling"))
             {
-                DA.SetData(1, 1 / (UvalueSum + 0.13));
-                DA.SetData(2, (1 / (UvalueSum + 0.13)) * area);
+                DA.SetData(2, results["U value"] + 0.17);
+                DA.SetData(3, (results["U value"] + 0.17) * area);
             }
-            else
+            else if (funct.Equals("Floor"))
             {
-                DA.SetData(1, UvalueSum);
-                DA.SetData(2, UvalueSum * area);
+                DA.SetData(2, results["U value"] + 0.13);
+                DA.SetData(3, (results["U value"] + 0.13) * area);
             }
         }
 
-        protected override System.Drawing.Bitmap Icon
+        private void CreateFunctList(string[] values, string nick, int inputParam, int offsetX, int offsetY)
+        {
+            GH_DocumentIO docIO = new GH_DocumentIO();
+            docIO.Document = new GH_Document();
+
+            GH_ValueList vl = new GH_ValueList();
+            vl.ListItems.Clear();
+
+            foreach (string item in values)
+            {
+                GH_ValueListItem vi = new GH_ValueListItem(item, String.Format("\"{0}\"", item));
+                vl.ListItems.Add(vi);
+            }
+
+            vl.NickName = nick;
+            GH_Document doc = OnPingDocument();
+            if (docIO.Document == null) return;
+
+            docIO.Document.AddObject(vl, false, inputParam);
+            PointF currPivot = Params.Input[inputParam].Attributes.Pivot;
+            vl.Attributes.Pivot = new PointF(currPivot.X - offsetX, currPivot.Y + offsetY);
+
+            docIO.Document.SelectAll();
+            docIO.Document.ExpireSolution();
+            docIO.Document.MutateAllIds();
+            IEnumerable<IGH_DocumentObject> objs = docIO.Document.Objects;
+            doc.MergeDocument(docIO.Document);
+            Component.Params.Input[inputParam].AddSource(vl);
+            doc.DeselectAll();
+        }
+
+        protected override Bitmap Icon
         {
             get
             {

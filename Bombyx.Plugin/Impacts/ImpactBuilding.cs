@@ -1,6 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -29,14 +30,8 @@ namespace Bombyx.Plugin.Impacts
             pManager.AddNumberParameter("PE Renewable", "PE Renewable (kWh oil-eq)", "PE Renewable (kWh oil-eq)", GH_ParamAccess.item);
             pManager.AddNumberParameter("PE Non-Renewable", "PE Non-Renewable (kWh oil-eq)", "PE Non-Renewable (kWh oil-eq)", GH_ParamAccess.item);
             pManager.AddNumberParameter("UBP impact", "UBP (P/m\xB2 a)", "UBP (P/m\xB2 a)", GH_ParamAccess.item);
-        }
-
-        public static IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize)
-        {
-            for (int i = 0; i < locations.Count; i += nSize)
-            {
-                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
-            }
+            pManager.AddTextParameter("LCA factors (text)", "LCA factors (text)", "Building Properties (text)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("LCA factors (values)", "LCA factors (values)", "Building Properties (values)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -48,72 +43,95 @@ namespace Bombyx.Plugin.Impacts
             var NFA = 0d;
             if (!DA.GetData(2, ref NFA)) { return; }
 
-            var inputs = SplitList(element, 15);
-            var result = new List<double>();
             var rspNFA = RSP * NFA;
 
-            var UBP13EmbodiedSum = 0d;
-            var UBP13RepSum = 0d;
-            var UBP13EoLSum = 0d;
-            var TotalEmbodiedSum = 0d;
-            var TotalRepSum = 0d;
-            var TotalEoLSum = 0d;
-            var RenewableEmbodiedSum = 0d;
-            var RenewableRepSum = 0d;
-            var RenewableEoLSum = 0d;
-            var NonRenewableEmbodiedSum = 0d;
-            var NonRenewableRepSum = 0d;
-            var NonRenewableEoLSum = 0d;
-            var GHGEmbodiedSum = 0d;
-            var GHGRepSum = 0d;
-            var GHGEoLEoLSum = 0d;
+            var valueSets = element.Select((x, i) => new { Index = i, Value = x })
+                                   .GroupBy(x => x.Index / 16)
+                                   .Select(x => x.Select(v => v.Value).ToList())
+                                   .ToList();
 
-            foreach (var item in inputs)
+            var results = new Dictionary<string, double>
             {
-                UBP13EmbodiedSum = UBP13EmbodiedSum + item[0];
-                UBP13RepSum = UBP13RepSum + item[1];
-                UBP13EoLSum = UBP13EoLSum + item[2];
-                TotalEmbodiedSum = TotalEmbodiedSum + item[3];
-                TotalRepSum = TotalRepSum + item[4];
-                TotalEoLSum = TotalEoLSum + item[5];
-                RenewableEmbodiedSum = RenewableEmbodiedSum + item[6];
-                RenewableRepSum = RenewableRepSum + item[7];
-                RenewableEoLSum = RenewableEoLSum + item[8];
-                NonRenewableEmbodiedSum = NonRenewableEmbodiedSum + item[9];
-                NonRenewableRepSum = NonRenewableRepSum + item[10];
-                NonRenewableEoLSum = NonRenewableEoLSum + item[11];
-                GHGEmbodiedSum = GHGEmbodiedSum + item[12];
-                GHGRepSum = GHGRepSum + item[13];
-                GHGEoLEoLSum = GHGEoLEoLSum + item[14];
+                { "UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "UBP13 Replacements (P/m\xB2 a)", 0 },
+                { "UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Total Embodied (kWh oil-eq)", 0 },
+                { "Total Replacements (kWh oil-eq)", 0 },
+                { "Total End of Life (kWh oil-eq)", 0 },
+                { "Renewable Embodied (kWh oil-eq)", 0 },
+                { "Renewable Replacements (kWh oil-eq)", 0 },
+                { "Renewable End of Life (kWh oil-eq)", 0 },
+                { "Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Non Renewable Replacements (kWh oil-eq)", 0 },
+                { "Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "U value", 0 }
+            };
+
+            foreach (var item in valueSets)
+            {
+                results["UBP13 Embodied (P/m\xB2 a)"] += item[0];
+                results["UBP13 Replacements (P/m\xB2 a)"] += item[1];
+                results["UBP13 End of Life (P/m\xB2 a)"] += item[2];
+                results["Total Embodied (kWh oil-eq)"] += item[3];
+                results["Total Replacements (kWh oil-eq)"] += item[4];
+                results["Total End of Life (kWh oil-eq)"] += item[5];
+                results["Renewable Embodied (kWh oil-eq)"] += item[6];
+                results["Renewable Replacements (kWh oil-eq)"] += item[7];
+                results["Renewable End of Life (kWh oil-eq)"] += item[8];
+                results["Non Renewable Embodied (kWh oil-eq)"] += item[9];
+                results["Non Renewable Replacements (kWh oil-eq)"] += item[10];
+                results["Non Renewable End of Life (kWh oil-eq)"] += item[11];
+                results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[12];
+                results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] += item[13];
+                results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[14];
+                results["U value"] += item[15];
             }
 
-            result.Add(UBP13EmbodiedSum / rspNFA);
-            result.Add(UBP13RepSum / rspNFA);
-            result.Add(UBP13EoLSum / rspNFA);
-            result.Add(TotalEmbodiedSum / rspNFA);
-            result.Add(TotalRepSum / rspNFA);
-            result.Add(TotalEoLSum / rspNFA);
-            result.Add(RenewableEmbodiedSum / rspNFA);
-            result.Add(RenewableRepSum / rspNFA);
-            result.Add(RenewableEoLSum / rspNFA);
-            result.Add(NonRenewableEmbodiedSum / rspNFA);
-            result.Add(NonRenewableRepSum / rspNFA);
-            result.Add(NonRenewableEoLSum / rspNFA);
-            result.Add(GHGEmbodiedSum / rspNFA);
-            result.Add(GHGRepSum / rspNFA);
-            result.Add(GHGEoLEoLSum / rspNFA);
+            results["UBP13 Embodied (P/m\xB2 a)"] /= rspNFA;
+            results["UBP13 Replacements (P/m\xB2 a)"] /= rspNFA;
+            results["UBP13 End of Life (P/m\xB2 a)"] /= rspNFA;
+            results["Total Embodied (kWh oil-eq)"] /= rspNFA;
+            results["Total Replacements (kWh oil-eq)"] /= rspNFA;
+            results["Total End of Life (kWh oil-eq)"] /= rspNFA;
+            results["Renewable Embodied (kWh oil-eq)"] /= rspNFA;
+            results["Renewable Replacements (kWh oil-eq)"] /= rspNFA;
+            results["Renewable End of Life (kWh oil-eq)"] /= rspNFA;
+            results["Non Renewable Embodied (kWh oil-eq)"] /= rspNFA;
+            results["Non Renewable Replacements (kWh oil-eq)"] /= rspNFA;
+            results["Non Renewable End of Life (kWh oil-eq)"] /= rspNFA;
+            results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] /= rspNFA;
+            results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] /= rspNFA;
+            results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] /= rspNFA;
 
-            var gwp = Math.Round((result[12] + result[13] + result[14]), 4);
-            var total = Math.Round((result[3] + result[4] + result[5]), 4);
-            var ubp = Math.Round((result[0] + result[1] + result[2]), 4);
-            var renew = Math.Round((result[6] + result[7] + result[8]), 4);
-            var nonrenew = Math.Round((result[9] + result[10] + result[11]), 4);
+            var gwp = Math.Round((results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] + 
+                                  results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] + 
+                                  results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"]), 4);
+            var total = Math.Round((results["Total Embodied (kWh oil-eq)"] + 
+                                    results["Total Replacements (kWh oil-eq)"] + 
+                                    results["Total End of Life (kWh oil-eq)"]), 4);
+            var ubp = Math.Round((results["UBP13 Embodied (P/m\xB2 a)"] + 
+                                  results["UBP13 Replacements (P/m\xB2 a)"] + 
+                                  results["UBP13 End of Life (P/m\xB2 a)"]), 4);
+            var renew = Math.Round((results["Renewable Embodied (kWh oil-eq)"] + 
+                                    results["Renewable Replacements (kWh oil-eq)"] + 
+                                    results["Renewable End of Life (kWh oil-eq)"]), 4);
+            var nonrenew = Math.Round((results["Non Renewable Embodied (kWh oil-eq)"] + 
+                                       results["Non Renewable Replacements (kWh oil-eq)"] + 
+                                       results["Non Renewable End of Life (kWh oil-eq)"]), 4);
 
             DA.SetData(0, gwp);
             DA.SetData(1, total);          
             DA.SetData(2, renew);
             DA.SetData(3, nonrenew);
             DA.SetData(4, ubp);
+
+            var resultValues = results.Values.ToList();
+
+            DA.SetDataList(5, results);
+            DA.SetDataList(6, resultValues);
         }
 
         protected override System.Drawing.Bitmap Icon

@@ -22,7 +22,7 @@ namespace Bombyx.Plugin.KBOB
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Materials", "Materials", "List of KBOB mterials from selected group", GH_ParamAccess.list);
+            pManager.AddTextParameter("Material", "Material", "List of KBOB mterials from selected group", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)

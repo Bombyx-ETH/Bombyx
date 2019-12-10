@@ -94,6 +94,9 @@
     <Compile Include="KBOB\KBOBServicesGroups.cs" />
     <Compile Include="KBOB\KBOBServicesList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\GH_ValueListAttributes.cs" />
+    <Compile Include="Utility\GH_ValueListItem.cs" />
+    <Compile Include="Utility\ItemSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bombyx.Data\Bombyx.Data.csproj">
@@ -170,7 +173,7 @@
     <None Include="Resources\3Dcomponent.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Utility\" />
+    <None Include="Resources\ItemSelector.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\1.png" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -23,19 +24,8 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Layer properties", "Layer\nproperties", "Layer property order: " +
-                "\n00: Density " +
-                "\n01: UBP Embodied " +
-                "\n02: UBP EoL " +
-                "\n03: PE Total Embodied " +
-                "\n04: PE Total EoL " +
-                "\n05: PE Renewable Embodied " +
-                "\n06: PE Renewable EoL " +
-                "\n07: PE Non-Renewable Embodied " +
-                "\n08: PE Non-Renewable EoL " +
-                "\n09: GHG Embodied " +
-                "\n10: GHG EoL " + 
-                "\n11: R-value", GH_ParamAccess.list);
+            pManager.AddTextParameter("Layer properties (text)", "Layer\nproperties (text)", "Layer property (text)", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Layer properties (values)", "Layer properties (values)", "Layer properties (values)", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -45,7 +35,6 @@ namespace Bombyx.Plugin.Impacts
             var thickness = 0d;
             if (!DA.GetData(1, ref thickness)) { return; }
 
-            var result = new List<double>();
             var AreaDensity = 0d;
 
             if (material[1] == 0)
@@ -63,20 +52,25 @@ namespace Bombyx.Plugin.Impacts
                 resistance =  thickness / material[11];
             }
 
-            result.Add(material[0]);
-            result.Add(material[1] * AreaDensity);
-            result.Add(material[2] * AreaDensity);
-            result.Add(material[3] * AreaDensity);
-            result.Add(material[4] * AreaDensity);
-            result.Add(material[5] * AreaDensity);
-            result.Add(material[6] * AreaDensity);
-            result.Add(material[7] * AreaDensity);
-            result.Add(material[8] * AreaDensity);
-            result.Add(material[9] * AreaDensity);
-            result.Add(material[10] * AreaDensity);
-            result.Add(resistance);
+            var output = new Dictionary<string, double>();
 
-            DA.SetDataList(0, result);
+            output.Add("Density (kg/m\xB3)", (double?)material[0] ?? -1);
+            output.Add("UBP13 Embodied * (density * thickness) (P/m\xB2 a)", material[1] * AreaDensity);
+            output.Add("UBP13 End of Life * (density * thickness) (P/m\xB2 a)", material[2] * AreaDensity);
+            output.Add("Total Embodied * (density * thickness) (kWh oil-eq)", material[3] * AreaDensity);
+            output.Add("Total End of Life * (density * thickness) (kWh oil-eq)", material[4] * AreaDensity);
+            output.Add("Renewable Embodied * (density * thickness) (kWh oil-eq)", material[5] * AreaDensity);
+            output.Add("Renewable End of Life * (density * thickness) (kWh oil-eq)", material[6] * AreaDensity);
+            output.Add("Non Renewable Embodied * (density * thickness) (kWh oil-eq)", material[7] * AreaDensity);
+            output.Add("Non Renewable End of Life * (density * thickness) (kWh oil-eq)", material[8] * AreaDensity);
+            output.Add("Green House Gases Embodied * (density * thickness) (kg CO\x2082-eq/m\xB2 a)", material[9] * AreaDensity);
+            output.Add("Green House Gases End of Life * (density * thickness) (kg CO\x2082-eq/m\xB2 a)", material[10] * AreaDensity);
+            output.Add("R value = (thickness / thermal conductivity)", (double?)resistance ?? -1);
+
+            var outputValues = output.Values.ToList();
+
+            DA.SetDataList(0, output);
+            DA.SetDataList(1, outputValues);
 
         }
 

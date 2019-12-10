@@ -23,9 +23,12 @@ namespace Bombyx.Plugin.InputLevel
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Building avg output", "Building avg output", "Building avg output", GH_ParamAccess.item);
-            pManager.AddTextParameter("Building min output", "Building min output", "Building min output", GH_ParamAccess.item);
-            pManager.AddTextParameter("Building max output", "Building max output", "Building max output", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building avg (text output)", "Building avg (text output)", "Building avg (text output)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building avg (values output)", "Building avg (values output)", "Building avg (values output)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building min (text output)", "Building min (text output)", "Building min (text output)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building min (values output)", "Building min (values output)", "Building min (values output)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building max (text output)", "Building max (text output)", "Building max (text output)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Building max (values output)", "Building max (values output)", "Building max (values output)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -40,79 +43,85 @@ namespace Bombyx.Plugin.InputLevel
 
             var results = new Dictionary<string, double>
             {
-                { "Average UBP13 Embodied", 0 },
-                { "Average UBP13 End of Life", 0 },
-                { "Average Total Embodied", 0 },
-                { "Average Total End of Life", 0 },
-                { "Average Renewable Embodied", 0 },
-                { "Average Renewable End of Life", 0 },
-                { "Average Non Renewable Embodied", 0 },
-                { "Average Non Renewable End of Life", 0 },
-                { "Average Green House Gasses Embodied", 0 },
-                { "Average Green House Gasses End of Life", 0 },
-                { "Minumum UBP13 Embodied", 0 },
-                { "Minumum UBP13 End of Life", 0 },
-                { "Minumum Total Embodied", 0 },
-                { "Minumum Total End of Life", 0 },
-                { "Minumum Renewable Embodied", 0 },
-                { "Minumum Renewable End of Life", 0 },
-                { "Minumum Non Renewable Embodied", 0 },
-                { "Minumum Non Renewable End of Life", 0 },
-                { "Minumum Green House Gasses Embodied", 0 },
-                { "Minumum Green House Gasses End of Life", 0 },
-                { "Maximum UBP13 Embodied", 0 },
-                { "Maximum UBP13 End of Life", 0 },
-                { "Maximum Total Embodied", 0 },
-                { "Maximum Total End of Life", 0 },
-                { "Maximum Renewable Embodied", 0 },
-                { "Maximum Renewable End of Life", 0 },
-                { "Maximum Non Renewable Embodied", 0 },
-                { "Maximum Non Renewable End of Life", 0 },
-                { "Maximum Green House Gasses Embodied", 0 },
-                { "Maximum Green House Gasses End of Life", 0 }
+                { "Average UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "Average UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Average Total Embodied (kWh oil-eq)", 0 },
+                { "Average Total End of Life (kWh oil-eq)", 0 },
+                { "Average Renewable Embodied (kWh oil-eq)", 0 },
+                { "Average Renewable End of Life (kWh oil-eq)", 0 },
+                { "Average Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Average Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Average Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Average Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Minimum UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "Minimum UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Minimum Total Embodied (kWh oil-eq)", 0 },
+                { "Minimum Total End of Life (kWh oil-eq)", 0 },
+                { "Minimum Renewable Embodied (kWh oil-eq)", 0 },
+                { "Minimum Renewable End of Life (kWh oil-eq)", 0 },
+                { "Minimum Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Minimum Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Minimum Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Minimum Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Maximum UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "Maximum UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Maximum Total Embodied (kWh oil-eq)", 0 },
+                { "Maximum Total End of Life (kWh oil-eq)", 0 },
+                { "Maximum Renewable Embodied (kWh oil-eq)", 0 },
+                { "Maximum Renewable End of Life (kWh oil-eq)", 0 },
+                { "Maximum Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Maximum Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Maximum Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Maximum Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 }
         };
 
             foreach (var item in valueSets)
             {
-                results["Average UBP13 Embodied"] += item[0];
-                results["Average UBP13 End of Life"] += item[1];
-                results["Average Total Embodied"] += item[2];
-                results["Average Total End of Life"] += item[3];
-                results["Average Renewable Embodied"] += item[4];
-                results["Average Renewable End of Life"] += item[5];
-                results["Average Non Renewable Embodied"] += item[6];
-                results["Average Non Renewable End of Life"] += item[7];
-                results["Average Green House Gasses Embodied"] += item[8];
-                results["Average Green House Gasses End of Life"] += item[9];
-                results["Minumum UBP13 Embodied"] += item[10];
-                results["Minumum UBP13 End of Life"] += item[11];
-                results["Minumum Total Embodied"] += item[12];
-                results["Minumum Total End of Life"] += item[13];
-                results["Minumum Renewable Embodied"] += item[14];
-                results["Minumum Renewable End of Life"] += item[15];
-                results["Minumum Non Renewable Embodied"] += item[16];
-                results["Minumum Non Renewable End of Life"] += item[17];
-                results["Minumum Green House Gasses Embodied"] += item[18];
-                results["Minumum Green House Gasses End of Life"] += item[19];
-                results["Maximum UBP13 Embodied"] += item[20];
-                results["Maximum UBP13 End of Life"] += item[21];
-                results["Maximum Total Embodied"] += item[22];
-                results["Maximum Total End of Life"] += item[23];
-                results["Maximum Renewable Embodied"] += item[24];
-                results["Maximum Renewable End of Life"] += item[25];
-                results["Maximum Non Renewable Embodied"] += item[26];
-                results["Maximum Non Renewable End of Life"] += item[27];
-                results["Maximum Green House Gasses Embodied"] += item[28];
-                results["Maximum Green House Gasses End of Life"] += item[29];
+                results["Average UBP13 Embodied (P/m\xB2 a)"] += item[0];
+                results["Average UBP13 End of Life (P/m\xB2 a)"] += item[1];
+                results["Average Total Embodied (kWh oil-eq)"] += item[2];
+                results["Average Total End of Life (kWh oil-eq)"] += item[3];
+                results["Average Renewable Embodied (kWh oil-eq)"] += item[4];
+                results["Average Renewable End of Life (kWh oil-eq)"] += item[5];
+                results["Average Non Renewable Embodied (kWh oil-eq)"] += item[6];
+                results["Average Non Renewable End of Life (kWh oil-eq)"] += item[7];
+                results["Average Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[8];
+                results["Average Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[9];
+                results["Minimum UBP13 Embodied (P/m\xB2 a)"] += item[10];
+                results["Minimum UBP13 End of Life (P/m\xB2 a)"] += item[11];
+                results["Minimum Total Embodied (kWh oil-eq)"] += item[12];
+                results["Minimum Total End of Life (kWh oil-eq)"] += item[13];
+                results["Minimum Renewable Embodied (kWh oil-eq)"] += item[14];
+                results["Minimum Renewable End of Life (kWh oil-eq)"] += item[15];
+                results["Minimum Non Renewable Embodied (kWh oil-eq)"] += item[16];
+                results["Minimum Non Renewable End of Life (kWh oil-eq)"] += item[17];
+                results["Minimum Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[18];
+                results["Minimum Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[19];
+                results["Maximum UBP13 Embodied (P/m\xB2 a)"] += item[20];
+                results["Maximum UBP13 End of Life (P/m\xB2 a)"] += item[21];
+                results["Maximum Total Embodied (kWh oil-eq)"] += item[22];
+                results["Maximum Total End of Life (kWh oil-eq)"] += item[23];
+                results["Maximum Renewable Embodied (kWh oil-eq)"] += item[24];
+                results["Maximum Renewable End of Life (kWh oil-eq)"] += item[25];
+                results["Maximum Non Renewable Embodied (kWh oil-eq)"] += item[26];
+                results["Maximum Non Renewable End of Life (kWh oil-eq)"] += item[27];
+                results["Maximum Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[28];
+                results["Maximum Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[29];
             }
 
             var resultsAVG = results.Where(s => s.Key.Contains("Average")).ToDictionary(dict => dict.Key, dict => dict.Value);
-            var resultsMIN = results.Where(s => s.Key.Contains("Minumum")).ToDictionary(dict => dict.Key, dict => dict.Value);
+            var resultsAVGValues = resultsAVG.Values.ToList();
+            var resultsMIN = results.Where(s => s.Key.Contains("Minimum")).ToDictionary(dict => dict.Key, dict => dict.Value);
+            var resultsMINValues = resultsMIN.Values.ToList();
             var resultsMAX = results.Where(s => s.Key.Contains("Maximum")).ToDictionary(dict => dict.Key, dict => dict.Value);
+            var resultsMAXValues = resultsMAX.Values.ToList();
 
             DA.SetDataList(0, resultsAVG);
-            DA.SetDataList(1, resultsMIN);
-            DA.SetDataList(2, resultsMAX);
+            DA.SetDataList(1, resultsAVGValues);
+            DA.SetDataList(2, resultsMIN);
+            DA.SetDataList(3, resultsMINValues);
+            DA.SetDataList(4, resultsMAX);
+            DA.SetDataList(5, resultsMAXValues);
         }
 
         protected override System.Drawing.Bitmap Icon

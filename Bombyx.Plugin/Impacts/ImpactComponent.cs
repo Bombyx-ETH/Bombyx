@@ -1,6 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bombyx.Plugin.Impacts
 {
@@ -24,24 +25,8 @@ namespace Bombyx.Plugin.Impacts
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("LCA factors", "LCA factors", "Component properties order: " +
-                "\n00: unused " +
-                "\n01: UBP13 Embodied " +
-                "\n02: UBP13 Rep " +
-                "\n03: UBP13 EoL " +
-                "\n04: PE Total Embodied " +
-                "\n05: PE Total Rep " +
-                "\n06: PE Total EoL " +
-                "\n07: PE Renewable Embodied " +
-                "\n08: PE Renewable Rep " +
-                "\n09: PE Renewable Rep " +
-                "\n10: PE Non-Renewable Embodied " +
-                "\n11: PE Non-Renewable Rep " +
-                "\n12: PE Non-Renewable EoL " +
-                "\n13: GHG Embodied " +
-                "\n14: GHG Rep " +
-                "\n15: GHG EoL " +
-                "\n16: R-value", GH_ParamAccess.list);
+            pManager.AddTextParameter("Component properties (text)", "Component properties (text)", "Component properties (text)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Component properties (values)", "Component properties (values)", "Component properties (values)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -51,9 +36,13 @@ namespace Bombyx.Plugin.Impacts
             var RSP = 0;
             if (!DA.GetData(1, ref RSP)) { return; }
             var RSL = 0;
-            if (!DA.GetData(2, ref RSL)) { return; }          
+            if (!DA.GetData(2, ref RSL)) { return; }
 
-            var result = new List<double>();
+            var valueSets = layer.Select((x, i) => new { Index = i, Value = x })
+                                 .GroupBy(x => x.Index / 12)
+                                 .Select(x => x.Select(v => v.Value).ToList())
+                                 .ToList();
+
             double repNum = 0;
             double tmp = ((double)RSP / (double)RSL) - 1;
             if (RSL != 0 && RSP != 0)
@@ -68,26 +57,51 @@ namespace Bombyx.Plugin.Impacts
             {
                 repNum = 0;
             }
-            
-            result.Add(layer[0]);
-            result.Add(layer[1]); //UBP13Embodied 1
-            result.Add((layer[1] + layer[2]) * repNum); //UBP13Rep 2
-            result.Add(layer[2]); //UBP13EoL 3
-            result.Add(layer[3]); //TotalEmbodied 4
-            result.Add((layer[3] + layer[4]) * repNum); //TotalRep 5
-            result.Add(layer[4]); //TotalEoL 6
-            result.Add(layer[5]); //RenewableEmbodied 7
-            result.Add((layer[5] + layer[6]) * repNum); //RenewableRep 8
-            result.Add(layer[6]); //RenewableRep 9
-            result.Add(layer[7]); //NonRenewableEmbodied 10
-            result.Add((layer[7] + layer[8]) * repNum); //NonRenewableRep 11
-            result.Add(layer[8]); //NonRenewableEoL 12
-            result.Add(layer[9]); //GHGEmbodied 13
-            result.Add((layer[9] + layer[10]) * repNum); //GHGRep 14
-            result.Add(layer[10]); //GHGEoL 15
-            result.Add(layer[11]); //R-value
 
-            DA.SetDataList(0, result);
+            var results = new Dictionary<string, double>
+            {
+                { "UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "UBP13 Replacements (P/m\xB2 a)", 0 },
+                { "UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Total Embodied (kWh oil-eq)", 0 },
+                { "Total Replacements (kWh oil-eq)", 0 },
+                { "Total End of Life (kWh oil-eq)", 0 },
+                { "Renewable Embodied (kWh oil-eq)", 0 },
+                { "Renewable Replacements (kWh oil-eq)", 0 },
+                { "Renewable End of Life (kWh oil-eq)", 0 },
+                { "Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Non Renewable Replacements (kWh oil-eq)", 0 },
+                { "Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "R value", 0 }
+            };
+
+            foreach (var item in valueSets)
+            {
+                results["UBP13 Embodied (P/m\xB2 a)"] += item[1];
+                results["UBP13 Replacements (P/m\xB2 a)"] += ((item[1] + item[2]) * repNum);
+                results["UBP13 End of Life (P/m\xB2 a)"] += item[2];
+                results["Total Embodied (kWh oil-eq)"] += item[3];
+                results["Total Replacements (kWh oil-eq)"] += ((item[3] + item[4]) * repNum);
+                results["Total End of Life (kWh oil-eq)"] += item[4];
+                results["Renewable Embodied (kWh oil-eq)"] += item[5];
+                results["Renewable Replacements (kWh oil-eq)"] += ((item[5] + item[6]) * repNum);
+                results["Renewable End of Life (kWh oil-eq)"] += item[6];
+                results["Non Renewable Embodied (kWh oil-eq)"] += item[7];
+                results["Non Renewable Replacements (kWh oil-eq)"] += ((item[7] + item[8]) * repNum);
+                results["Non Renewable End of Life (kWh oil-eq)"] += item[8];
+                results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += item[9];
+                results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] += ((item[9] + item[10]) * repNum);
+                results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += item[10];
+                results["R value"] += item[11];
+            }
+
+            var resultValues = results.Values.ToList();
+
+            DA.SetDataList(0, results);
+            DA.SetDataList(1, resultValues);
         }
 
         protected override System.Drawing.Bitmap Icon

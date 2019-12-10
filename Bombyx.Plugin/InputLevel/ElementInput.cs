@@ -52,7 +52,7 @@ namespace Bombyx.Plugin.InputLevel
             pManager[2].Optional = true;
             //pManager.AddTextParameter("Structural material (testing)", "Structural material (testing)", "Structural material (testing)", GH_ParamAccess.item);
             //pManager[3].Optional = true;
-            pManager.AddIntegerParameter("Area (m2)", "Area (m2)", "Area (m2)", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Area (m\xB2)", "Area (m\xB2)", "Area (m\xB2)", GH_ParamAccess.item);
             pManager[3].Optional = true;
         }
 
@@ -235,16 +235,16 @@ namespace Bombyx.Plugin.InputLevel
 
                     foreach (var item in InputData.GetElementsInputList(sqlOutput))
                     {
-                        output.Add(query + " UBP13Embodied", item.UBP13Embodied * area);
-                        output.Add(query + " UBP13EoL", item.UBP13EoL * area);
-                        output.Add(query + " TotalEmbodied", item.TotalEmbodied * area);
-                        output.Add(query + " TotalEoL", item.TotalEoL * area);
-                        output.Add(query + " RenewableEmbodied", item.RenewableEmbodied * area);
-                        output.Add(query + " RenewableEoL", item.RenewableEoL * area);
-                        output.Add(query + " NonRenewableEmbodied", item.NonRenewableEmbodied * area);
-                        output.Add(query + " NonRenewableEoL", item.NonRenewableEoL * area);
-                        output.Add(query + " GHGEmbodied", item.GHGEmbodied * area);
-                        output.Add(query + " GHGEoL", item.GHGEoL * area);
+                        output.Add(query + " UBP13 Embodied (P/m\xB2 a)", item.UBP13Embodied * area);
+                        output.Add(query + " UBP13 End of Life (P/m\xB2 a)", item.UBP13EoL * area);
+                        output.Add(query + " Total Embodied (kWh oil-eq)", item.TotalEmbodied * area);
+                        output.Add(query + " Total End of Life (kWh oil-eq)", item.TotalEoL * area);
+                        output.Add(query + " Renewable Embodied (kWh oil-eq)", item.RenewableEmbodied * area);
+                        output.Add(query + " Renewable End of Life (kWh oil-eq)", item.RenewableEoL * area);
+                        output.Add(query + " Non Renewable Embodied (kWh oil-eq)", item.NonRenewableEmbodied * area);
+                        output.Add(query + " Non Renewable End of Life (kWh oil-eq)", item.NonRenewableEoL * area);
+                        output.Add(query + " Green House Gases Embodied (kg CO\x2082-eq/m\xB2 a)", item.GHGEmbodied * area);
+                        output.Add(query + " Green House Gases End of Life (kg CO\x2082-eq/m\xB2 a)", item.GHGEoL * area);
                     }
                 }   
             }
