@@ -23,50 +23,42 @@ namespace Bombyx.Plugin.Impacts
             pManager.AddNumberParameter("Frame percentage", "Frame percentage", "Value", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Reference service life", "RSL (years)", "Manual input", GH_ParamAccess.item);
-            pManager.AddNumberParameter("U value", "U value\n(W/m2*K)", "U value", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Area (square meters)", "Area (m\xB2)", "Manual value", GH_ParamAccess.item);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Window/Door Properties", "Window/Door\nProperties", "Window properties order: " +
-                "\n00: unused " +
-                "\n01: UBP13 Embodied " +
-                "\n02: UBP13 Rep " +
-                "\n03: UBP13 EoL " +
-                "\n04: PE Total Embodied " +
-                "\n05: PE Total Rep " +
-                "\n06: PE Total EoL " +
-                "\n07: PE Renewable Embodied " +
-                "\n08: PE Renewable Rep " +
-                "\n09: PE Renewable Rep " +
-                "\n10: PE Non-Renewable Embodied " +
-                "\n11: PE Non-Renewable Rep " +
-                "\n12: PE Non-Renewable EoL " +
-                "\n13: GHG Embodied " +
-                "\n14: GHG Rep " +
-                "\n15: GHG EoL " +
-                "\n16: U-value", GH_ParamAccess.list);
+            pManager.AddTextParameter("LCA factors (text)", "LCA factors (text)", "Element Properties (text)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("LCA factors (values)", "LCA factors (values)", "Element Properties (values)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("UA value", "UA value\n(W/K)", "Area U Value", GH_ParamAccess.item);
+            pManager.AddTextParameter("LCA frame (text)", "LCA frame (text)", "Frame (text)", GH_ParamAccess.item);
+            pManager.AddTextParameter("LCA filling (text)", "LCA filling (text)", "Filling (text)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             var frame = new List<double>();
-            if (!DA.GetDataList(0, frame)) { return; }
             var filling = new List<double>();
-            if (!DA.GetDataList(1, filling)) { return; }
             var frameInput = 0d;
+            var RSP = 0;
+            var RSL = 0;
+            var area = 0d;
+            var repNum = 0d;
+
+            if (!DA.GetDataList(0, frame)) { return; }
+            if (!DA.GetDataList(1, filling)) { return; }
             if (!DA.GetData(2, ref frameInput)) { return; }
+
             var framePercent = frameInput / 100;
             var fillingPercent = 1 - framePercent;
-            var RSP = 0;
+            
             if (!DA.GetData(3, ref RSP)) { return; }
-            var RSL = 0;
             if (!DA.GetData(4, ref RSL)) { return; }
-            var uValue = 0d;
-            if (!DA.GetData(5, ref uValue)) { return; }
+            if (!DA.GetData(5, ref area)) { return; }
 
-            var result = new List<double>();
-            double repNum = 0;
+            var frameArea = framePercent * area;
+            var fillingArea = fillingPercent * area;
+            
             double tmp = ((double)RSP / (double)RSL) - 1;
             if (RSL != 0 && RSP != 0)
             {
@@ -81,27 +73,73 @@ namespace Bombyx.Plugin.Impacts
                 repNum = 0;
             }
 
-            var window = frame.Zip(filling, (a, b) => ((a * framePercent) + (b * fillingPercent))).ToList();
+            var frameDict = new Dictionary<string, double>
+            {
+                { "UBP13 Embodied (P/m\xB2 a)", frame[1] * frameArea },
+                { "UBP13 Replacements (P/m\xB2 a)", ((frame[1] + frame[2]) * repNum) * frameArea },
+                { "UBP13 End of Life (P/m\xB2 a)", frame[2] * frameArea },
+                { "Total Embodied (kWh oil-eq)", frame[3] * frameArea },
+                { "Total Replacements (kWh oil-eq)", ((frame[3] + frame[4]) * repNum) * frameArea },
+                { "Total End of Life (kWh oil-eq)", frame[4] * frameArea },
+                { "Renewable Embodied (kWh oil-eq)", frame[5] * frameArea },
+                { "Renewable Replacements (kWh oil-eq)", ((frame[5] + frame[6]) * repNum) * frameArea },
+                { "Renewable End of Life (kWh oil-eq)", frame[6] * frameArea },
+                { "Non Renewable Embodied (kWh oil-eq)", frame[7] * frameArea },
+                { "Non Renewable Replacements (kWh oil-eq)", ((frame[7] + frame[8]) * repNum) * frameArea },
+                { "Non Renewable End of Life (kWh oil-eq)", frame[8] * frameArea },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", frame[9] * frameArea },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", ((frame[9] + frame[10]) * repNum) * frameArea },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", frame[10] * frameArea },
+                { "U value: (1/Rf)*area(filling)", (1 / frame[11]) * frameArea }
+            };
 
-            result.Add(1);
-            result.Add(window[1]); //UBP13Embodied 1
-            result.Add((window[1] + window[2]) * repNum); //UBP13Rep 2
-            result.Add(window[2]); //UBP13EoL 3
-            result.Add(window[3]); //TotalEmbodied 4
-            result.Add((window[3] + window[4]) * repNum); //TotalRep 5
-            result.Add(window[4]); //TotalEoL 6
-            result.Add(window[5]); //RenewableEmbodied 7
-            result.Add((window[5] + window[6]) * repNum); //RenewableRep 8
-            result.Add(window[6]); //RenewableRep 9
-            result.Add(window[7]); //NonRenewableEmbodied 10
-            result.Add((window[7] + window[8]) * repNum); //NonRenewableRep 11
-            result.Add(window[8]); //NonRenewableEoL 12
-            result.Add(window[9]); //GHGEmbodied 13
-            result.Add((window[9] + window[10]) * repNum); //GHGRep 14
-            result.Add(window[10]); //GHGEoL 15
-            result.Add(uValue);
+            var fillingDict = new Dictionary<string, double>
+            {
+                { "UBP13 Embodied (P/m\xB2 a)", filling[1] * fillingArea },
+                { "UBP13 Replacements (P/m\xB2 a)", ((filling[1] + filling[2]) * repNum) * fillingArea },
+                { "UBP13 End of Life (P/m\xB2 a)", filling[2] * fillingArea },
+                { "Total Embodied (kWh oil-eq)", filling[3] * fillingArea },
+                { "Total Replacements (kWh oil-eq)", ((filling[3] + filling[4]) * repNum) * fillingArea },
+                { "Total End of Life (kWh oil-eq)", filling[4] * fillingArea },
+                { "Renewable Embodied (kWh oil-eq)", filling[5] * fillingArea },
+                { "Renewable Replacements (kWh oil-eq)", ((filling[5] + filling[6]) * repNum) * fillingArea },
+                { "Renewable End of Life (kWh oil-eq)", filling[6] * fillingArea },
+                { "Non Renewable Embodied (kWh oil-eq)", filling[7] * fillingArea },
+                { "Non Renewable Replacements (kWh oil-eq)", ((filling[7] + filling[8]) * repNum) * fillingArea },
+                { "Non Renewable End of Life (kWh oil-eq)", filling[8] * fillingArea },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", filling[9] * fillingArea },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", ((filling[9] + filling[10]) * repNum) * fillingArea },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", filling[10] * fillingArea },
+                { "U value: (1/Rg)*area(glasing)", (1 / filling[11]) * fillingArea }
+            };
 
-            DA.SetDataList(0, result);
+            var window = new Dictionary<string, double>
+            {
+                { "UBP13 Embodied (P/m\xB2 a)", frameDict["UBP13 Embodied (P/m\xB2 a)"] + frameDict["UBP13 Embodied (P/m\xB2 a)"] },
+                { "UBP13 Replacements (P/m\xB2 a)", frameDict["UBP13 Replacements (P/m\xB2 a)"] + frameDict["UBP13 Replacements (P/m\xB2 a)"] },
+                { "UBP13 End of Life (P/m\xB2 a)", frameDict["UBP13 End of Life (P/m\xB2 a)"] + frameDict["UBP13 End of Life (P/m\xB2 a)"] },
+                { "Total Embodied (kWh oil-eq)", frameDict["Total Embodied (kWh oil-eq)"] + frameDict["Total Embodied (kWh oil-eq)"] },
+                { "Total Replacements (kWh oil-eq)", frameDict["Total Replacements (kWh oil-eq)"] + frameDict["Total Replacements (kWh oil-eq)"] },
+                { "Total End of Life (kWh oil-eq)", frameDict["Total End of Life (kWh oil-eq)"] + frameDict["Total End of Life (kWh oil-eq)"] },
+                { "Renewable Embodied (kWh oil-eq)", frameDict["Renewable Embodied (kWh oil-eq)"] + frameDict["Renewable Embodied (kWh oil-eq)"] },
+                { "Renewable Replacements (kWh oil-eq)", frameDict["Renewable Replacements (kWh oil-eq)"] + frameDict["Renewable Replacements (kWh oil-eq)"] },
+                { "Renewable End of Life (kWh oil-eq)", frameDict["Renewable End of Life (kWh oil-eq)"] + frameDict["Renewable End of Life (kWh oil-eq)"] },
+                { "Non Renewable Embodied (kWh oil-eq)", frameDict["Non Renewable Embodied (kWh oil-eq)"] + frameDict["Non Renewable Embodied (kWh oil-eq)"] },
+                { "Non Renewable Replacements (kWh oil-eq)", frameDict["Non Renewable Replacements (kWh oil-eq)"] + frameDict["Non Renewable Replacements (kWh oil-eq)"] },
+                { "Non Renewable End of Life (kWh oil-eq)", frameDict["Non Renewable End of Life (kWh oil-eq)"] + frameDict["Non Renewable End of Life (kWh oil-eq)"] },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", frameDict["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] + frameDict["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", frameDict["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] + frameDict["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", frameDict["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] + frameDict["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] },
+                { "U value: (Uf+Ug)/area", (frameDict["U value: (1/Rf)*area(filling)"] + fillingDict["U value: (1/Rg)*area(glasing)"]) / area }
+            };
+
+            var resultValues = window.Values.ToList();
+
+            DA.SetDataList(0, window);
+            DA.SetDataList(1, resultValues);
+            DA.SetData(2, window["U value: (Uf+Ug)/area"]);
+            DA.SetDataList(3, frameDict);
+            DA.SetDataList(4, fillingDict);
         }
 
         protected override System.Drawing.Bitmap Icon
