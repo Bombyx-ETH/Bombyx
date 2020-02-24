@@ -20,7 +20,7 @@ namespace Bombyx.Plugin.CompLevel
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Component", "Component", "Selected component", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Thickness", "Thickness", "Component thickness", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Thickness", "Thickness (m)", "Component thickness", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Reference study period", "RSP (years)", "Manual input", GH_ParamAccess.item);
         }
 

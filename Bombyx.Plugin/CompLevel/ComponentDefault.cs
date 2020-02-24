@@ -25,24 +25,8 @@ namespace Bombyx.Plugin.CompLevel
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("LCA factors", "LCA factors", "Component properties order: " +
-                "\n00: unused " +
-                "\n01: UBP13 Embodied " +
-                "\n02: UBP13 Rep " +
-                "\n03: UBP13 EoL " +
-                "\n04: PE Total Embodied " +
-                "\n05: PE Total Rep " +
-                "\n06: PE Total EoL " +
-                "\n07: PE Renewable Embodied " +
-                "\n08: PE Renewable Rep " +
-                "\n09: PE Renewable Rep " +
-                "\n10: PE Non-Renewable Embodied " +
-                "\n11: PE Non-Renewable Rep " +
-                "\n12: PE Non-Renewable EoL " +
-                "\n13: GHG Embodied " +
-                "\n14: GHG Rep " +
-                "\n15: GHG EoL " +
-                "\n16: R-value", GH_ParamAccess.list);
+            pManager.AddTextParameter("Component properties (text)", "Component properties (text)", "Component properties (text)", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Component properties (values)", "Component properties (values)", "Component properties (values)", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -53,7 +37,7 @@ namespace Bombyx.Plugin.CompLevel
             if (!DA.GetData(1, ref RSP)) { return; }
 
             var splitInput = input.Split('-').ToList();
-            var results = CompData.GetGenComponent(splitInput[0].Trim(), null, true);
+            var resultsDB = CompData.GetGenComponent(splitInput[0].Trim(), null, true);
             var RSL = int.Parse(splitInput.Last());
 
             decimal repNum = 0;
@@ -71,7 +55,7 @@ namespace Bombyx.Plugin.CompLevel
                 repNum = 0;
             }
 
-            var sumResults = from row in results
+            var sumResults = from row in resultsDB
                              group row by row.SortCode.Trim() into rowSum
                              select new
                              {
@@ -94,30 +78,50 @@ namespace Bombyx.Plugin.CompLevel
                                  ResistanceSum = rowSum.Sum(x => x.Resistance)
                              };
 
-            var result = new List<double>();
+            var results = new Dictionary<string, double>
+            {
+                { "UBP13 Embodied (P/m\xB2 a)", 0 },
+                { "UBP13 Replacements (P/m\xB2 a)", 0 },
+                { "UBP13 End of Life (P/m\xB2 a)", 0 },
+                { "Total Embodied (kWh oil-eq)", 0 },
+                { "Total Replacements (kWh oil-eq)", 0 },
+                { "Total End of Life (kWh oil-eq)", 0 },
+                { "Renewable Embodied (kWh oil-eq)", 0 },
+                { "Renewable Replacements (kWh oil-eq)", 0 },
+                { "Renewable End of Life (kWh oil-eq)", 0 },
+                { "Non Renewable Embodied (kWh oil-eq)", 0 },
+                { "Non Renewable Replacements (kWh oil-eq)", 0 },
+                { "Non Renewable End of Life (kWh oil-eq)", 0 },
+                { "Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)", 0 },
+                { "R value", 0 }
+            };
 
             foreach (var item in sumResults)
             {
-                result.Add(1);
-                result.Add((double)item.UBP13EmbodiedSum); //UBP13Embodied 1
-                result.Add((double)item.UBP13RepSum); //UBP13Rep 2
-                result.Add((double)item.UBP13EoLSum); //UBP13EoL 3
-                result.Add((double)item.TotalEmbodiedSum); //TotalEmbodied 4
-                result.Add((double)item.TotalRepSum); //TotalRep 5
-                result.Add((double)item.TotalEoLSum); //TotalEoL 6
-                result.Add((double)item.RenewableEmbodiedSum); //RenewableEmbodied 7
-                result.Add((double)item.RenewableRepSum); //RenewableRep 8
-                result.Add((double)item.RenewableEoLSum); //RenewableRep 9
-                result.Add((double)item.NonRenewableEmbodiedSum); //NonRenewableEmbodied 10
-                result.Add((double)item.NonRenewableRepSum); //NonRenewableRep 11
-                result.Add((double)item.NonRenewableEoLSum); //NonRenewableEoL 12
-                result.Add((double)item.GHGEmbodiedSum); //GHGEmbodied 13
-                result.Add((double)item.GHGRepSum); //GHGRep 14
-                result.Add((double)item.GHGEoLEoLSum); //GHGEoL 15
-                result.Add((double)item.ResistanceSum);
+                results["UBP13 Embodied (P/m\xB2 a)"] += (double)item.UBP13EmbodiedSum;
+                results["UBP13 Replacements (P/m\xB2 a)"] += (double)item.UBP13RepSum;
+                results["UBP13 End of Life (P/m\xB2 a)"] += (double)item.UBP13EoLSum;
+                results["Total Embodied (kWh oil-eq)"] += (double)item.TotalEmbodiedSum;
+                results["Total Replacements (kWh oil-eq)"] += (double)item.TotalRepSum;
+                results["Total End of Life (kWh oil-eq)"] += (double)item.TotalEoLSum;
+                results["Renewable Embodied (kWh oil-eq)"] += (double)item.RenewableEmbodiedSum;
+                results["Renewable Replacements (kWh oil-eq)"] += (double)item.RenewableRepSum;
+                results["Renewable End of Life (kWh oil-eq)"] += (double)item.RenewableEoLSum;
+                results["Non Renewable Embodied (kWh oil-eq)"] += (double)item.NonRenewableEmbodiedSum;
+                results["Non Renewable Replacements (kWh oil-eq)"] += (double)item.NonRenewableRepSum;
+                results["Non Renewable End of Life (kWh oil-eq)"] += (double)item.NonRenewableEoLSum;
+                results["Green House Gasses Embodied (kg CO\x2082-eq/m\xB2 a)"] += (double)item.GHGEmbodiedSum;
+                results["Green House Gasses Replacements (kg CO\x2082-eq/m\xB2 a)"] += (double)item.GHGRepSum;
+                results["Green House Gasses End of Life (kg CO\x2082-eq/m\xB2 a)"] += (double)item.GHGEoLEoLSum;
+                results["R value"] += (double)item.ResistanceSum;
             }
 
-            DA.SetDataList(0, result);
+            var resultValues = results.Values.ToList();
+
+            DA.SetDataList(0, results);
+            DA.SetDataList(1, resultValues);
         }
 
         protected override System.Drawing.Bitmap Icon
